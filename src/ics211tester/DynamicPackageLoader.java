@@ -1,15 +1,27 @@
 package ics211tester;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import java.lang.reflect.Method;
+
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import org.junit.platform.engine.discovery.ClassNameFilter;
+import java.util.Arrays;
+
+import ics211tester.tests.DatesTest;
 
 public class DynamicPackageLoader {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         String assignmentsFolder = "submissions"; // Folder containing student submissions
 
         // Check if the "assignments" folder exists
@@ -30,7 +42,7 @@ public class DynamicPackageLoader {
                     // Compile the student's package
                     compileStudentPackage(studentPath);
                     
-                    // Test the student's package
+                    // Test the student's package using JUnit 5
                     testStudentPackage(studentPath);
                 }
             }
@@ -62,41 +74,37 @@ public class DynamicPackageLoader {
             URL packageURL = packageDir.toURI().toURL();
             URLClassLoader classLoader = new URLClassLoader(new URL[]{packageURL});
 
-            // Load the student's class
-            Class<?> studentClass = classLoader.loadClass("edu.ics211.h01.Dates");
+            // Use JUnit 5 Launcher to run the JUnit 5 test class
+            Launcher launcher = LauncherFactory.create();
+            SummaryGeneratingListener listener = new SummaryGeneratingListener();
+            launcher.registerTestExecutionListeners(listener);
 
-            // Get the computeDateTime method from the student's class
-            Method computeDateTimeMethod = null;
-            try {
-                computeDateTimeMethod = studentClass.getDeclaredMethod("computeDateTime", long.class, boolean.class);
-            } catch (NoSuchMethodException e) {
-                System.out.println("computeDateTime method not found in " + studentClass.getName());
-                return; // Skip testing if method not found
-            }
+            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder
+                    .request()
+                    .selectors(
+                            DiscoverySelectors.selectClass(DatesTest.class), // Add more test classes as needed
+                            DiscoverySelectors.selectPackage("ics211tester.tests") // Replace with your package prefix
+                    )
+                    .build();
 
-            // Determine if the method is static
-            boolean isStaticMethod = (computeDateTimeMethod.getModifiers() & java.lang.reflect.Modifier.STATIC) != 0;
+            launcher.execute(request);
 
-            // If the method is static, invoke it on the class; otherwise, create an instance and invoke it
-            String result;
-            try {
-                if (isStaticMethod) {
-                    result = (String) computeDateTimeMethod.invoke(null, 12345L, true);
-                } else {
-                    Object studentInstance = studentClass.getDeclaredConstructor().newInstance();
-                    result = (String) computeDateTimeMethod.invoke(studentInstance, 12345L, true);
-                }
+            // Report test results
+            TestExecutionSummary summary = listener.getSummary();
+            
+         // Create a PrintWriter from System.out
+            PrintWriter printWriter = new PrintWriter(System.out);
 
-                // You can add assertions or other testing logic here as needed
-                System.out.println("computeDateTime result: " + result);
-            } catch (Exception e) {
-                System.out.println("Error while testing " + studentClass.getName() + ": " + e.getMessage());
-            } finally {
-                classLoader.close(); // Close the class loader to release resources
-            }
+            // Print the summary to the PrintWriter
+            summary.printTo(printWriter);
+
+            // Flush and close the PrintWriter to ensure output is displayed
+            printWriter.flush();
+            printWriter.close();
+
+            classLoader.close(); // Close the class loader to release resources
         } catch (Exception e) {
             System.out.println("Error while testing student package: " + e.getMessage());
         }
     }
-
 }
