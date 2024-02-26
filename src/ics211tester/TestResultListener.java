@@ -1,5 +1,5 @@
 package ics211tester;
-    
+
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
@@ -20,7 +20,7 @@ public class TestResultListener implements TestExecutionListener {
     }
 
     public Map<String, String> getResults() {
-        return new HashMap<>(results);
+        return results;
     }
 
     public void clearResults() {
