@@ -16,13 +16,14 @@ import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.junit.platform.engine.discovery.ClassNameFilter;
 import java.util.Arrays;
+import org.junit.platform.console.ConsoleLauncher;
 
 import ics211tester.tests.DatesTest;
 
 public class DynamicPackageLoader {
 
     public static void main(String[] args) {
-        String assignmentsFolder = "submissions"; // Folder containing student submissions
+        String assignmentsFolder = "submissions/01"; // Folder containing student submissions
 
         // Check if the "assignments" folder exists
         File assignmentsDir = new File(assignmentsFolder);
@@ -66,45 +67,61 @@ public class DynamicPackageLoader {
             e.printStackTrace();
         }
     }
+    
+    private static String toString(Object[] a) {
+        if (a == null)
+            return "null";
 
-    public static void testStudentPackage(String packagePath) {
-        try {
-            // Load and test the student's package
-            File packageDir = new File(packagePath);
-            URL packageURL = packageDir.toURI().toURL();
-            URLClassLoader classLoader = new URLClassLoader(new URL[]{packageURL});
+        int iMax = a.length - 1;
+        if (iMax == -1)
+            return "";
 
-            // Use JUnit 5 Launcher to run the JUnit 5 test class
-            Launcher launcher = LauncherFactory.create();
-            SummaryGeneratingListener listener = new SummaryGeneratingListener();
-            launcher.registerTestExecutionListeners(listener);
-
-            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder
-                    .request()
-                    .selectors(
-                            DiscoverySelectors.selectClass(DatesTest.class), // Add more test classes as needed
-                            DiscoverySelectors.selectPackage("ics211tester.tests") // Replace with your package prefix
-                    )
-                    .build();
-
-            launcher.execute(request);
-
-            // Report test results
-            TestExecutionSummary summary = listener.getSummary();
-            
-         // Create a PrintWriter from System.out
-            PrintWriter printWriter = new PrintWriter(System.out);
-
-            // Print the summary to the PrintWriter
-            summary.printTo(printWriter);
-
-            // Flush and close the PrintWriter to ensure output is displayed
-            printWriter.flush();
-            printWriter.close();
-
-            classLoader.close(); // Close the class loader to release resources
-        } catch (Exception e) {
-            System.out.println("Error while testing student package: " + e.getMessage());
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; ; i++) {
+            b.append(String.valueOf(a[i]));
+            if (i == iMax)
+                return b.toString();
+            b.append(" ");
         }
     }
+
+    public static void testStudentPackage(String studentPath) {
+        try {
+            String classpath = buildClasspathForStudent(studentPath);
+            String[] command = buildJavaCommand(classpath, studentPath);
+            System.out.println("Testing " + studentPath);
+            System.out.println(toString(command));
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.inheritIO().start();
+            int exitCode = process.waitFor();
+
+            if (exitCode == 0) {
+                System.out.println("Tests successful for " + studentPath);
+            } else {
+                System.out.println("Tests failed for " + studentPath);
+            }
+        } catch (Exception e) {
+            System.out.println("Error while testing student package: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static String[] buildJavaCommand(String classpath, String studentPath) {
+        return new String[]{
+                "java",
+                "-cp",
+                classpath,
+                "org.junit.platform.console.ConsoleLauncher",
+                "--select-package", "ics211tester.tests",
+                // Additional options as necessary, e.g., "--include-classname=.*Test"
+        };
+    }
+
+    private static String buildClasspathForStudent(String studentPath) {
+        // This should include the path to the JUnit Platform Console Launcher,
+        // JUnit Jupiter API, JUnit Jupiter Engine, and any other dependencies, 
+        // plus the path to the compiled student submission and your test classes.
+        return "./src/ics211tester" + File.pathSeparator + studentPath + File.pathSeparator + "./junit-platform-console-standalone.jar";
+    }
+
 }
