@@ -14,5 +14,6 @@ module ics211tester {
 	requires org.junit.jupiter.params;
 	requires java.desktop;
 	// Exports the test package to JUnit platform modules
-    exports ics211tester.tests to org.junit.jupiter.api, org.junit.platform.commons;
+    //exports ics211tester.tests to org.junit.jupiter.api, org.junit.platform.commons;
+    opens ics211tester.tests to org.junit.jupiter.api, org.junit.platform.commons;
 }
