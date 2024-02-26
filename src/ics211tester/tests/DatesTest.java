@@ -33,7 +33,7 @@ public class DatesTest {
         
         @Override
         public String toString() {
-            return description;
+            return "Dates: " + description;
         }
 
     }
@@ -60,7 +60,7 @@ public class DatesTest {
         );
     }
 
-    @ParameterizedTest(name = "{index}: {0}") // Use the TestCase.toString() for the display name
+    @ParameterizedTest(name = "{0}: {index}") // Use the TestCase.toString() for the display name
     @MethodSource("testCases")
     public void runTest(TestCase testCase) {
         // Test for regular year
