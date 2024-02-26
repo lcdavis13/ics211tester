@@ -30,6 +30,12 @@ public class DatesTest {
             this.expectedLeapYear = expectedLeapYear;
             this.description = description;
         }
+        
+        @Override
+        public String toString() {
+            return description;
+        }
+
     }
 
     static Stream<TestCase> testCases() {
@@ -54,7 +60,7 @@ public class DatesTest {
         );
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index}: {0}") // Use the TestCase.toString() for the display name
     @MethodSource("testCases")
     public void runTest(TestCase testCase) {
         // Test for regular year
@@ -66,3 +72,5 @@ public class DatesTest {
         assertEquals(testCase.expectedLeapYear.toLowerCase(), resultLeapYear.toLowerCase(), testCase.description + " - Leap Year");
     }
 }
+
+
