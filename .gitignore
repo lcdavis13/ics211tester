@@ -29,3 +29,5 @@ replay_pid*
 
 # Custom ignores
 submissions/
+src/edu/ics211/
+
