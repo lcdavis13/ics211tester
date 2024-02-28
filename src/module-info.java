@@ -11,5 +11,6 @@ module ics211tester {
     requires org.junit.platform.engine;
     requires org.junit.jupiter.params;
     requires java.desktop;
+	requires org.junit.platform.suite.api;
     opens ics211tester.tests to org.junit.jupiter.api, org.junit.platform.commons;
 }

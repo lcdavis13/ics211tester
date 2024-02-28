@@ -1,3 +1,6 @@
+//Enabling Automatic File Refresh in Eclipse
+//To set auto-refresh, go to window → preferences → general → workspace and check the "Refresh using native hooks or polling" check-box.
+
 package ics211tester;
 
 import org.junit.platform.launcher.Launcher;
@@ -7,24 +10,25 @@ import org.junit.platform.launcher.core.LauncherFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
-import org.eclipse.jdt.core.compiler.CompilationProgress;
-import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 
 public class TestRunner {
+
+    private static List<String> sortedTestNames = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         String packageName = "ics211tester.tests";
@@ -32,6 +36,7 @@ public class TestRunner {
         String submissionFolder = "submissions/h01/";
         String submissionPackageFolder = "Submission attachment(s)/";
         String packageFolder = "src/edu/ics211/h01/";
+        String indexFile = "submission-index.txt";
 
         // Create the CSV file if it doesn't exist
         if (!Files.exists(Paths.get(csvFile))) {
@@ -40,139 +45,80 @@ public class TestRunner {
 
         TestResultListener listener = new TestResultListener();
         File folder = new File(submissionFolder);
+        File[] subfolders = folder.listFiles(File::isDirectory);
 
-        // Iterate through each subfolder
-        for (File subfolder : folder.listFiles(File::isDirectory)) {
-        	System.out.println(subfolder);
-        	
+        // Read the index of the submission to test
+        int index = readIndex(indexFile, subfolders.length);
+
+        if (index <= subfolders.length) {
             // Clear previous results
             listener.clearResults();
 
             try {
-                File srcFolder = new File(subfolder, submissionPackageFolder);
-
-                // Copy .java files from subfolder to destination
-                copyJavaFiles(srcFolder, new File(packageFolder));
-                System.out.println("a");
-
-                // Recompile the package
-                recompilePackage(packageFolder);
-                System.out.println("a");
-
-                // Recompile the unit tests
-                recompileUnitTests();
-                System.out.println("a");
+                // RUN TEST SUITE FOR PREVIOUSLY COPIED FILES
+                String testFolder = (index > 0) ? subfolders[index - 1].getName() : "header row";
+                System.out.println("Testing " + testFolder);
 
                 // Run the tests and collect results
                 runTests(packageName, listener);
-                System.out.println("a");
 
-	            // Write the results to the CSV file, including the subfolder name
-	            writeResults(csvFile, subfolder.getName(), listener.getResults());
-	            System.out.println("a");
-            } catch (Exception e) {
+                // Write the header to the CSV file if it's the first subfolder
+                if (index == 0) {
+                    Set<String> testNames = listener.getResults().keySet();
+                    sortedTestNames.addAll(new TreeSet<>(testNames));
+                    writeHeader(csvFile, "Submission", sortedTestNames);
+                } else {
+                    // Load sorted test names from the CSV file
+                    loadSortedTestNames(csvFile);
+                    // Write the results to the CSV file, using the previous subfolder name
+                    writeResults(csvFile, testFolder, listener.getResults());
+                }
+
+                if (index < subfolders.length) {
+                    File subfolder = subfolders[index];
+                    
+	                // COPY FILES FOR NEXT TEST
+	                File srcFolder = new File(subfolder, submissionPackageFolder);
+	
+	                // Copy .java files from subfolder to destination
+	                copyJavaFiles(srcFolder, new File(packageFolder));
+	
+	                // Update the index for the next execution
+	                writeIndex(indexFile, index + 1);
+	                
+	                
+	                // WE'RE DONE - WAIT SO ECLIPSE HAS A CHANCE TO DETECT THE NEW FILES
+	                
+	                // Delay to allow eclipse to detect the new files
+	                TimeUnit.SECONDS.sleep(2);
+	
+	                System.out.println("Copied source files for " + subfolder.getName());
+	                System.out.println("=============CONTINUE==============");
+                }
+	            else {
+	                System.out.println("All submissions have been tested.");
+	            }
+            } 
+            catch (Exception e) {
                 System.out.println("EXCEPTION: " + e.getMessage());
             }
-        }
-
-        
-        System.out.println("done");
-    }
-
-    private static void recompilePackage(String packageFolder) throws IOException {
-        // Compile the .java files in the package folder
-        ProcessBuilder builder = new ProcessBuilder("javac", packageFolder + "*.java");
-        Process process = builder.start();
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } 
+        else {
+            System.out.println("All submissions have been tested.");
         }
     }
-    
-    private static void recompileUnitTests() throws IOException {
-        String unitTestsFolder = "src/ics211tester/tests/";
-        // Adjust the path to the ecj.jar file according to your setup
-        String ecjJarPath = "path/to/ecj.jar";
-        // Path to your Eclipse project's .classpath file
-        String eclipseClasspathFile = ".classpath";
-
-        // Extract classpath from Eclipse .classpath file
-        String classpath = extractClasspathFromEclipse(eclipseClasspathFile);
-
-        ProcessBuilder builder = new ProcessBuilder("java", "-jar", ecjJarPath, "-classpath", classpath, unitTestsFolder + "*.java");
-        builder.redirectErrorStream(true); // Combine stdout and stderr
-        Process process = builder.start();
-
-        // Read the output to prevent the buffer from filling up
-        try (InputStream inputStream = process.getInputStream()) {
-            while (inputStream.read() != -1) {
-                // You can log the output if needed
-            }
-        }
-
-        try {
-            if (process.waitFor() != 0) {
-                throw new RuntimeException("Compilation of unit tests failed.");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restore the interrupted status
-            throw new RuntimeException("Compilation of unit tests was interrupted.", e);
-        }
-    }
-
-    private static String extractClasspathFromEclipse(String eclipseClasspathFile) throws IOException {
-        // Read the .classpath file
-        Path path = Paths.get(eclipseClasspathFile);
-        List<String> lines = Files.readAllLines(path);
-
-        StringBuilder classpath = new StringBuilder();
-        for (String line : lines) {
-            if (line.contains("kind=\"lib\"")) {
-                int pathStart = line.indexOf("path=\"") + 6;
-                int pathEnd = line.indexOf("\"", pathStart);
-                String libPath = line.substring(pathStart, pathEnd);
-                classpath.append(libPath).append(System.getProperty("path.separator"));
-            }
-        }
-        return classpath.toString();
-    }
-
-
-
-
-
-
-
-
-
-
 
     private static void runTests(String packageName, TestResultListener listener) {
-        try {
-            File packageDir = new File("src/edu/ics211/h01/");
-            File testsDir = new File("src/ics211tester/tests/");
-            URL[] urls = {packageDir.toURI().toURL(), testsDir.toURI().toURL()};
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                .selectors(selectPackage(packageName))
+                .build();
 
-            try (URLClassLoader classLoader = new URLClassLoader(urls, TestRunner.class.getClassLoader())) {
-                LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                        .selectors(selectPackage(packageName))
-                        .build();
-
-                Launcher launcher = LauncherFactory.create();
-                launcher.registerTestExecutionListeners(listener);
-
-                Thread.currentThread().setContextClassLoader(classLoader);
-                launcher.execute(request);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Launcher launcher = LauncherFactory.create();
+        launcher.registerTestExecutionListeners(listener);
+        launcher.execute(request);
     }
 
-
-
-    private static void writeHeader(String csvFile, String firstColumnName, Set<String> testNames) throws IOException {
+    private static void writeHeader(String csvFile, String firstColumnName, List<String> testNames) throws IOException {
         try (FileWriter writer = new FileWriter(csvFile)) {
             writer.append(firstColumnName).append(',');
             for (String testName : testNames) {
@@ -184,31 +130,60 @@ public class TestRunner {
 
     private static void writeResults(String csvFile, String subfolderName, Map<String, String> results) throws IOException {
         try (FileWriter writer = new FileWriter(csvFile, true)) {
-            writer.append(subfolderName).append(',');
-            for (String result : results.values()) {
+            writer.append("\"").append(subfolderName).append("\"").append(',');
+            for (String testName : sortedTestNames) {
+                String result = results.getOrDefault(testName, "");
                 writer.append(result).append(',');
             }
             writer.append('\n');
         }
     }
 
-
     private static void copyJavaFiles(File sourceDir, File destDir) throws IOException {
         if (!destDir.exists()) {
             destDir.mkdir();
         }
-        
-        //clean out existing files
-        for(File file: destDir.listFiles()) 
-            if (!file.isDirectory()) 
-                file.delete();
 
-        //copy new files
+        // Clean out existing files
+        for (File file : destDir.listFiles()) {
+            if (!file.isDirectory()) {
+                file.delete();
+            }
+        }
+
+        // Copy new files
         for (File file : sourceDir.listFiles((dir, name) -> name.endsWith(".java"))) {
-//        	System.out.println(System.getProperty("user.dir"));
-//        	System.out.println(file.getPath());
-//        	System.out.println(destDir.getPath());
             Files.copy(file.toPath(), Paths.get(destDir.getPath(), file.getName()));
+        }
+    }
+
+    private static int readIndex(String indexFile, int maxIndex) throws IOException {
+        Path path = Paths.get(indexFile);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+            return 0;
+        } else {
+            String content = Files.readString(path);
+            try {
+                int index = Integer.parseInt(content);
+                return Math.min(index, maxIndex);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+    }
+
+    private static void writeIndex(String indexFile, int index) throws IOException {
+        Files.writeString(Paths.get(indexFile), String.valueOf(index));
+    }
+    
+    private static void loadSortedTestNames(String csvFile) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String header = reader.readLine();
+            if (header != null) {
+                String[] names = header.split(",");
+                sortedTestNames = Arrays.asList(Arrays.copyOfRange(names, 1, names.length));
+            }
         }
     }
 }
