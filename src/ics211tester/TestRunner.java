@@ -9,19 +9,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 
 public class TestRunner {
 
@@ -42,87 +43,41 @@ public class TestRunner {
 
         // Iterate through each subfolder
         for (File subfolder : folder.listFiles(File::isDirectory)) {
-        	System.out.println(subfolder.getName());
+        	System.out.println(subfolder);
         	
             // Clear previous results
             listener.clearResults();
 
             try {
-	            File srcFolder = new File(subfolder, submissionPackageFolder);
-	
-//	            // Copy .java files from subfolder to destination
-//	            copyJavaFiles(srcFolder, new File(packageFolder));
-//	
-//	            // Recompile the package
-//	            recompilePackage(packageFolder);
+                File srcFolder = new File(subfolder, submissionPackageFolder);
 
-	            // Compile the Java files in the submission directory
-	            compileJavaFiles(srcFolder, false);
-	
-	         // Run the tests and collect results
-	            runTests(packageName, listener, srcFolder);
+                // Copy .java files from subfolder to destination
+                copyJavaFiles(srcFolder, new File(packageFolder));
+                System.out.println("a");
 
+                // Recompile the package
+                recompilePackage(packageFolder);
+                System.out.println("a");
 
+                // Recompile the unit tests
+                recompileUnitTests();
+                System.out.println("a");
 
-	            // Write the header to the CSV file if it's the first subfolder
-	            if (subfolder.equals(folder.listFiles(File::isDirectory)[0])) {
-	                writeHeader(csvFile, "Submission", listener.getResults().keySet());
-	            }
+                // Run the tests and collect results
+                runTests(packageName, listener);
+                System.out.println("a");
 
 	            // Write the results to the CSV file, including the subfolder name
 	            writeResults(csvFile, subfolder.getName(), listener.getResults());
+	            System.out.println("a");
+            } catch (Exception e) {
+                System.out.println("EXCEPTION: " + e.getMessage());
             }
-            catch (Exception e)
-            {
-            	System.out.println("EXCEPTION: " + e.getMessage());
-            }
-        	//break;
         }
+
         
         System.out.println("done");
     }
-    
-    private static void compileJavaFiles(File sourceDir, boolean verbose) throws IOException, InterruptedException {
-        // Get the path of the source directory
-        String sourceDirPath = sourceDir.getAbsolutePath();
-
-        // List all Java files in the source directory
-        File[] javaFiles = sourceDir.listFiles((dir, name) -> name.endsWith(".java"));
-        if (javaFiles == null || javaFiles.length == 0) {
-            throw new IOException("No Java files found in " + sourceDirPath);
-        }
-
-        // Build the command to compile the Java files
-        String[] command = new String[javaFiles.length + 1];
-        command[0] = "javac";
-        for (int i = 0; i < javaFiles.length; i++) {
-            command[i + 1] = javaFiles[i].getAbsolutePath();
-        }
-
-        // Execute the compilation command
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectErrorStream(true); // Merge stdout and stderr
-        Process process = builder.start();
-
-        // Read and print the output of the compilation process if verbose is true
-        if (verbose) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }
-        }
-
-        // Wait for the compilation process to finish and check the exit code
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new IOException("Compilation failed. Exit code: " + exitCode);
-        }
-    }
-
-
-
 
     private static void recompilePackage(String packageFolder) throws IOException {
         // Compile the .java files in the package folder
@@ -134,47 +89,86 @@ public class TestRunner {
             e.printStackTrace();
         }
     }
+    
+    private static void recompileUnitTests() throws IOException {
+        String unitTestsFolder = "src/ics211tester/tests/";
+        // Adjust the path to the ecj.jar file according to your setup
+        String ecjJarPath = "path/to/ecj.jar";
+        // Path to your Eclipse project's .classpath file
+        String eclipseClasspathFile = ".classpath";
 
-    private static void runTests(String packageName, TestResultListener listener, File submissionDir) {
-        try {
-            // Create a URL array with the submission directory
-            URL[] urls = {submissionDir.toURI().toURL()};
+        // Extract classpath from Eclipse .classpath file
+        String classpath = extractClasspathFromEclipse(eclipseClasspathFile);
 
-            // Create a new URLClassLoader with the submission URL
-            URLClassLoader classLoader = new URLClassLoader(urls, TestRunner.class.getClassLoader());
+        ProcessBuilder builder = new ProcessBuilder("java", "-jar", ecjJarPath, "-classpath", classpath, unitTestsFolder + "*.java");
+        builder.redirectErrorStream(true); // Combine stdout and stderr
+        Process process = builder.start();
 
-            // Get all classes in the package
-            File packageDir = new File(submissionDir, packageName.replace('.', '/'));
-            if (packageDir.exists()) {
-                for (File file : packageDir.listFiles((dir, name) -> name.endsWith(".class"))) {
-                    String className = packageName + "." + file.getName().replace(".class", "");
-                    try {
-                        // Load the class and print its name
-                        Class<?> cls = classLoader.loadClass(className);
-                        System.out.println("Loaded class: " + cls.getName());
-                    } catch (ClassNotFoundException e) {
-                        System.err.println("Class not found: " + className);
-                    }
-                }
+        // Read the output to prevent the buffer from filling up
+        try (InputStream inputStream = process.getInputStream()) {
+            while (inputStream.read() != -1) {
+                // You can log the output if needed
             }
+        }
 
-            // Set the context class loader to the custom class loader
-            Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            if (process.waitFor() != 0) {
+                throw new RuntimeException("Compilation of unit tests failed.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+            throw new RuntimeException("Compilation of unit tests was interrupted.", e);
+        }
+    }
 
-            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                    .selectors(selectPackage(packageName))
-                    .build();
+    private static String extractClasspathFromEclipse(String eclipseClasspathFile) throws IOException {
+        // Read the .classpath file
+        Path path = Paths.get(eclipseClasspathFile);
+        List<String> lines = Files.readAllLines(path);
 
-            Launcher launcher = LauncherFactory.create();
-            launcher.registerTestExecutionListeners(listener);
+        StringBuilder classpath = new StringBuilder();
+        for (String line : lines) {
+            if (line.contains("kind=\"lib\"")) {
+                int pathStart = line.indexOf("path=\"") + 6;
+                int pathEnd = line.indexOf("\"", pathStart);
+                String libPath = line.substring(pathStart, pathEnd);
+                classpath.append(libPath).append(System.getProperty("path.separator"));
+            }
+        }
+        return classpath.toString();
+    }
 
-            // Execute the tests
-            launcher.execute(request);
+
+
+
+
+
+
+
+
+
+
+    private static void runTests(String packageName, TestResultListener listener) {
+        try {
+            File packageDir = new File("src/edu/ics211/h01/");
+            File testsDir = new File("src/ics211tester/tests/");
+            URL[] urls = {packageDir.toURI().toURL(), testsDir.toURI().toURL()};
+
+            try (URLClassLoader classLoader = new URLClassLoader(urls, TestRunner.class.getClassLoader())) {
+                LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                        .selectors(selectPackage(packageName))
+                        .build();
+
+                Launcher launcher = LauncherFactory.create();
+                launcher.registerTestExecutionListeners(listener);
+
+                Thread.currentThread().setContextClassLoader(classLoader);
+                launcher.execute(request);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
 
