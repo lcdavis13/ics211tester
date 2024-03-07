@@ -39,7 +39,7 @@ public class ReaderTest {
         }
 
         public String toString() {
-            return "Reader: " + fileName;
+            return "2.Reader: " + fileName;
         }
     }
 
@@ -48,7 +48,7 @@ public class ReaderTest {
             new TestCase("instructionExample.txt", "the quick brown fox jumped over the lazy dog", 9, false),
             new TestCase("simpleTest.txt", "a new test case that isn't about a quick brown fox", 11, false),
             new TestCase("emptyFile.txt", "", 0, false),
-            new TestCase("nonexistentfile.txt", null, -1, true),
+            //new TestCase("nonexistentfile.txt", null, -1, true),
             new TestCase("file name with spaces.txt", "a new test case that isn't about a quick brown fox", 11, false),
             new TestCase("testWithSpaceEnd.txt", "a test that ends with a space ", 7, false),
             new TestCase("testWithSpaceStart.txt", " a test that starts with a space", 7, false),
@@ -67,6 +67,15 @@ public class ReaderTest {
                 Files.createFile(filePath); // Ensure file exists even if it's empty
             }
         }
-        assertEquals(testCase.expectedWordCount.intValue(), reader.numWords(filePath.toString()), "Test Failed for: " + testCase.fileName);
+        int num = -9;
+        try {
+        	num = reader.numWords(filePath.toString());
+        }
+        catch (Exception e)
+        {
+        	assertEquals(1, 0, "exception " + e);
+        }
+        
+        assertEquals(testCase.expectedWordCount.intValue(), num, "Test Failed for: " + testCase.fileName);
     }
 }

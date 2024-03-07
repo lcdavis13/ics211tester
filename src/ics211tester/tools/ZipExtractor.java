@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -12,7 +13,7 @@ import java.util.zip.ZipInputStream;
 public class ZipExtractor {
     
     public static void main(String[] args) {
-        String rootDirectory = "./submissions";
+        String rootDirectory = "./submissions/h01";
         extractFiles(new File(rootDirectory));
     }
     
@@ -37,7 +38,7 @@ public class ZipExtractor {
         
         try (ZipFile zipFile = new ZipFile(filePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            
+
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 File entryDestination = new File(dir, entry.getName());
@@ -46,25 +47,18 @@ public class ZipExtractor {
                 } else {
                     entryDestination.getParentFile().mkdirs();
                     try (FileOutputStream out = new FileOutputStream(entryDestination);
-                         FileInputStream in = new FileInputStream(zipFile.getName())) {
-                        ZipInputStream zipIn = new ZipInputStream(in);
-                        ZipEntry zipEntry = zipIn.getNextEntry();
-                        while (zipEntry != null) {
-                            if (!zipEntry.isDirectory()) {
-                                byte[] buffer = new byte[1024];
-                                int length;
-                                while ((length = zipIn.read(buffer)) > 0) {
-                                    out.write(buffer, 0, length);
-                                }
-                            }
-                            zipEntry = zipIn.getNextEntry();
+                         InputStream in = zipFile.getInputStream(entry)) {  // Corrected line
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = in.read(buffer)) > 0) {
+                            out.write(buffer, 0, length);
                         }
-                        zipIn.closeEntry();
                     }
                 }
             }
         } catch (IOException e) {
             System.err.println("Error extracting file " + filePath + ": " + e.getMessage());
         }
+
     }
 }

@@ -43,7 +43,14 @@ public class HW1Test {
         }
 
         System.setOut(new PrintStream(outContent));
-        HW1.main(args);
+        
+        try {
+        	HW1.main(args);
+        }
+        catch (Exception e)
+        {
+        	
+        }
     }
 
     @AfterAll
@@ -53,11 +60,23 @@ public class HW1Test {
 
     static Stream<String> computeDateTimeOutputScenarios() {
         return Stream.of(
-            "Jan 1 00:00:00", // For 0 seconds
-            "illegal number of seconds" // For -1, 31536000, and 31622400 seconds
-            // Add more expected strings based on your specific scenarios
+            "Jan 1 00:00:00", 
+            "Jan 1 00:00:01", 
+            "Jan 1 01:00:00",  
+            "Jan 1 12:00:00", 
+            "Dec 31 00:00:00", 
+            "illegal number of seconds"
         );
     }
+    
+//  Future work: could check source file for:
+//	"-1", 
+//	"0", 
+//	"1", 
+//	"3600", 
+//	"43200", 
+//	"31536000", 
+//	"31622400",
 
     @ParameterizedTest(name = "HW1: {0}: {index}")
     @MethodSource("computeDateTimeOutputScenarios")
@@ -88,11 +107,13 @@ public class HW1Test {
         return List.of(
             new TestCase("alphabet.txt", "a b c d e f g h i j k l m n o p q r s t u v w x y z", "26", false),
             new TestCase("alphaNums.txt", "a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9", "36", false),
+            new TestCase("alphaNumSyms.txt", "a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 + - * / .", "41", false),
+            new TestCase("fileNameInOutput.txt", "a b c d e f g h i j k l m n o p q r s t u v w x y z", "fileNameInOutput.txt", false),
             new TestCase("nonexistentfile.txt", null, "nonexistentfile.txt not found", true)
         );
     }
 
-    @ParameterizedTest(name = "HW1: {0}: {index}")
+    @ParameterizedTest(name = "3.HW1: {0}: {index}")
     @MethodSource("testCases")
     public void testFileReadingOutput(TestCase testCase) {
         assertTrue(outContent.toString().toLowerCase().contains(testCase.expectedOutputSubstring.toLowerCase()),
