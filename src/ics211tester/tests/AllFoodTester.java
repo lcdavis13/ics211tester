@@ -28,67 +28,67 @@ import java.util.stream.Collectors;
 public class AllFoodTester {
 
     @Test
-    public void testPlantTypeEnum() {
+    public void DEFplantTypeEnumTest() {
         assertNotNull(PlantType.GRAIN);
         assertNotNull(PlantType.FRUIT);
         assertNotNull(PlantType.VEGETABLE);
     }
 
     @Test
-    public void testEdiblePlantAbstractClass() {
+    public void DEFediblePlantAbstractClassTest() {
         assertTrue(Modifier.isAbstract(EdiblePlant.class.getModifiers()));
     }
 
     @Test
-    public void testEdibleInterface() {
+    public void DEFedibleInterfaceTest() {
         assertTrue(Edible.class.isInterface());
         assertTrue(EdiblePlant.class.getInterfaces().length > 0);
         assertTrue(EdiblePlant.class.getInterfaces()[0].equals(Edible.class));
     }
 
     @Test
-    public void testGrainClass() {
+    public void DEFgrainClassTest() {
         assertTrue(Grain.class.getSuperclass().equals(EdiblePlant.class));
         assertTrue(Modifier.isAbstract(Grain.class.getModifiers()));
     }
 
     @Test
-    public void testFruitClass() {
+    public void DEFfruitClassTest() {
         assertTrue(Fruit.class.getSuperclass().equals(EdiblePlant.class));
         assertTrue(Modifier.isAbstract(Fruit.class.getModifiers()));
     }
 
     @Test
-    public void testVegetableClass() {
+    public void DEFvegetableClassTest() {
         assertTrue(Vegetable.class.getSuperclass().equals(EdiblePlant.class));
         assertFalse(Modifier.isAbstract(Vegetable.class.getModifiers()));
     }
 
     @Test
-    public void testRiceAndBarley() {
+    public void DEFriceAndBarleyTest() {
         assertTrue(Rice.class.getSuperclass().equals(Grain.class));
         assertTrue(Barley.class.getSuperclass().equals(Grain.class));
     }
 
     @Test
-    public void testLettuceAndCarrot() {
+    public void DEFlettuceAndCarrotTest() {
         assertTrue(Lettuce.class.getSuperclass().equals(Vegetable.class));
         assertTrue(Carrot.class.getSuperclass().equals(Vegetable.class));
     }
 
     @Test
-    public void testNegativeOrZeroAmountException() {
+    public void DEFnegativeOrZeroAmountExceptionTest() {
         assertTrue(NegativeOrZeroAmountException.class.getSuperclass().equals(RuntimeException.class));
     }
 
     @Test
-    public void testZeroAvailable() {
+    public void FUNavailableZeroTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         assertEquals(0, plant.available());
     }
 
     @Test
-    public void testAddMethod() {
+    public void FUNaddTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         double initialAmount = plant.available();
         try {
@@ -100,7 +100,7 @@ public class AllFoodTester {
     }
 
     @Test
-    public void testConsumeMethodWithinAvailableAmount() {
+    public void FUNconsumeAvailableTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         try {
             double initialAmount = plant.available();
@@ -115,7 +115,7 @@ public class AllFoodTester {
     }
 
     @Test
-    public void testConsumeMethodExceedingAvailableAmount() {
+    public void FUNconsumeUnvailableTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         try {
             double initialAmount = plant.available();
@@ -128,38 +128,50 @@ public class AllFoodTester {
         }
     }
 
-
-	@Test
-	public void testAddThrows() {
-	    EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
-	    assertThrows(NegativeOrZeroAmountException.class, () -> plant.add(-1));
-	    assertThrows(NegativeOrZeroAmountException.class, () -> plant.add(0));
-	}
-
+    @Test
+    public void FUNaddThrowsTest() {
+        EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
+        assertThrows(NegativeOrZeroAmountException.class, () -> plant.add(-1));
+        assertThrows(NegativeOrZeroAmountException.class, () -> plant.add(0));
+    }
 
     @Test
-    public void testConsumeThrows() {
+    public void FUNconsumeThrowsTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         assertThrows(NegativeOrZeroAmountException.class, () -> plant.consume(-1));
         assertThrows(NegativeOrZeroAmountException.class, () -> plant.consume(0));
     }
 
     @Test
-    public void testEqualsMethod() {
-        EdiblePlant plant1 = new Lettuce();
-        EdiblePlant plant2 = new Lettuce();
+    public void FUNequalsTest() {
+    	Lettuce plant1 = new Lettuce();
+    	Lettuce plant2 = new Lettuce();
         try {
             plant1.add(100);
-            plant2.add(110); // Within 10% of each other
+            plant2.add(100);
             assertTrue(plant1.equals(plant2));
         } catch (NegativeOrZeroAmountException e) {
             fail("NegativeOrZeroAmountException should not be thrown");
         }
     }
 
+    @Test
+    public void FUNequalsApproxTest() {
+        Lettuce plant1 = new Lettuce();
+        Lettuce plant2 = new Lettuce();
+        try {
+            plant1.add(100);
+            plant2.add(108); // Within 10% of each other
+            assertTrue(plant1.equals(plant2));
+        } catch (NegativeOrZeroAmountException e) {
+            fail("NegativeOrZeroAmountException should not be thrown");
+        }
+    }
+
+
     // Test methods for Rice class
     @Test
-    public void testRiceMethods() {
+    public void PLANTriceMethodsTest() {
         EdiblePlant rice = new Rice();
         assertEquals("rice", rice.name().toLowerCase());
         assertFalse(rice.isGreen());
@@ -170,7 +182,7 @@ public class AllFoodTester {
 
     // Test methods for Barley class
     @Test
-    public void testBarleyMethods() {
+    public void PLANTbarleyMethodsTest() {
         EdiblePlant barley = new Barley();
         assertEquals("barley", barley.name().toLowerCase());
         assertFalse(barley.isGreen());
@@ -181,7 +193,7 @@ public class AllFoodTester {
 
     // Test methods for Lettuce class
     @Test
-    public void testLettuceMethods() {
+    public void PLANTlettuceMethodsTest() {
         EdiblePlant lettuce = new Lettuce();
         assertEquals("lettuce", lettuce.name().toLowerCase());
         assertTrue(lettuce.isGreen());
@@ -192,7 +204,7 @@ public class AllFoodTester {
 
     // Test methods for Carrot class
     @Test
-    public void testCarrotMethods() {
+    public void PLANTcarrotMethodsTest() {
         EdiblePlant carrot = new Carrot();
         assertEquals("carrot", carrot.name().toLowerCase());
         assertTrue(!carrot.isGreen());
@@ -222,7 +234,7 @@ public class AllFoodTester {
     }
 
     @Test
-    public void testThreeNonAbstractFruitClassesExist() {
+    public void PLANT3FruitClassesExistTest() {
         Set<Class> classes = findAllClassesUsingClassLoader("edu.ics211.h03");
         long nonAbstractFruitCount = classes.stream()
                 .filter(Fruit.class::isAssignableFrom)
@@ -231,72 +243,6 @@ public class AllFoodTester {
 
         assertTrue(3 <= nonAbstractFruitCount, "There should be exactly 3 non-abstract fruit classes.");
     }
-    
- // Additional tests for EdiblePlant
-
- // Test class that inherits from EdiblePlant for testing purposes
- class TestPlant extends EdiblePlant {
-     TestPlant() {
-         super("TestPlant", PlantType.GRAIN, 0);
-     }
-
-     @Override
-     public boolean isGreen() {
-         return false;
-     }
-
-     @Override
-     public double calories(double grams) {
-         return grams; // Simple calories implementation for testing
-     }
- }
-
- @Test
- public void testNameMethod() {
-     EdiblePlant plant = new TestPlant();
-     assertEquals("TestPlant", plant.name());
- }
-
- @Test
- public void testTypeMethod() {
-     EdiblePlant plant = new TestPlant();
-     assertEquals(PlantType.GRAIN, plant.type());
- }
-
- @Test
- public void testAvailableMethod() {
-     EdiblePlant plant = new TestPlant();
-     assertEquals(0, plant.available(), 0.01);
- }
-
- @Test
- public void testAddMethodForTestPlant() {
-     EdiblePlant plant = new TestPlant();
-     plant.add(50);
-     assertEquals(50, plant.available(), 0.01);
- }
-
- @Test
- public void testConsumeMethodForTestPlant() {
-     EdiblePlant plant = new TestPlant();
-     plant.add(50);
-     assertEquals(25, plant.consume(25), 0.01);
-     assertEquals(25, plant.available(), 0.01);
- }
-
- @Test
- public void testEqualsMethodForTestPlant() {
-     EdiblePlant plant1 = new TestPlant();
-     EdiblePlant plant2 = new TestPlant();
-     plant1.add(100);
-     plant2.add(90); // Within 10% of each other
-     assertTrue(plant1.equals(plant2));
- }
-
- @Test
- public void testAbstractMethodsInEdiblePlant() {
-     assertTrue(Modifier.isAbstract(EdiblePlant.class.getDeclaredMethod("isGreen").getModifiers()));
-     assertTrue(Modifier.isAbstract(EdiblePlant.class.getDeclaredMethod("calories", double.class).getModifiers()));
- }
+ 
 
 }

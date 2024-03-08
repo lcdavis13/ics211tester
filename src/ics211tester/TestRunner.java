@@ -35,111 +35,134 @@ public class TestRunner {
 
 	private static List<String> sortedTestNames = new ArrayList<>();
 
-	public static void main(String[] args) throws IOException {
-	    String assignment = "h03";
-	    String[] filenames = {"EdiblePlant.java"};
-	    
-	    String packageName = "edu.ics211." + assignment;
-	    String testPackageName = "ics211tester.tests";
-	    String csvFile = "test-results.csv";
-	    String submissionFolder = "submissions/" + assignment + "/";
-	    String submissionPackageFolder = "Submission attachment(s)/";
-	    String packageFolder = "src/edu/ics211/" + assignment + "/";
-	    String indexFile = "submission-index.txt";
-	    String lastActionFile = "last-action.txt";  // File to keep track of the last action
+    public static void main(String[] args) throws IOException {
+        String assignment = "h03";
+        String[] filenames = {"EdiblePlant.java"};
 
-	    // Create the CSV file if it doesn't exist
-	    if (!Files.exists(Paths.get(csvFile))) {
-	        Files.createFile(Paths.get(csvFile));
-	    }
+        boolean breakAfterTest = false;
+        String packageName = "edu.ics211." + assignment;
+        String testPackageName = "ics211tester.tests";
+        String csvFile = "test-results.csv";
+        String submissionFolder = "submissions/" + assignment + "/";
+        String submissionPackageFolder = "Submission attachment(s)/";
+        String packageFolder = "src/edu/ics211/" + assignment + "/";
+        String statusFile = "submission-status.txt"; // File to keep track of the index and the last action
 
-	    TestResultListener listener = new TestResultListener();
-	    File folder = new File(submissionFolder);
-	    File[] subfolders = folder.listFiles(File::isDirectory);
+        // Create the CSV file if it doesn't exist
+        if (!Files.exists(Paths.get(csvFile))) {
+            Files.createFile(Paths.get(csvFile));
+        }
 
-	    // Read the index of the submission to test
-	    int index = readIndex(indexFile, subfolders.length);
+        TestResultListener listener = new TestResultListener();
+        File folder = new File(submissionFolder);
+        File[] subfolders = folder.listFiles(File::isDirectory);
 
-	    // Read the last action from the file
-	    String lastAction = readLastAction(lastActionFile);
+        // Read the index and the last action from the status file
+        Status status = readStatus(statusFile, subfolders.length);
 
-	    if (index <= subfolders.length) {
-	        // Clear previous results
-	        listener.clearResults();
+        if (status.index <= subfolders.length) {
+            // Clear previous results
+            listener.clearResults();
 
-	        try {
-	            // Determine the action based on the last action
-	            if ("copying".equals(lastAction) || lastAction.isEmpty()) {
-	                // RUN TEST SUITE FOR PREVIOUSLY COPIED FILES
-	                String testFolder = (index > 0) ? subfolders[index - 1].getName() : "header row";
-	                System.out.println("Testing " + testFolder);
+            try {
+            	boolean do_test = "test".equals(status.nextAction) || status.nextAction.isEmpty();
+            	boolean do_copy = "copy".equals(status.nextAction) || breakAfterTest == false;
+            	
+                // Determine the action based on the last action
+                 if (do_test) {
+                     // RUN TEST SUITE FOR PREVIOUSLY COPIED FILES
+                     String testFolder = (status.index > 0) ? subfolders[status.index - 1].getName() : "header row";
+                     System.out.println("Testing " + testFolder);
 
-	                // Run the tests and collect results
-	                runTests(testPackageName, listener);
+                     // Run the tests and collect results
+                     runTests(testPackageName, listener);
 
-	                // Write the header to the CSV file if it's the first subfolder
-	                if (index == 0) {
-	                    Set<String> testNames = listener.getResults().keySet();
-	                    sortedTestNames.addAll(new TreeSet<>(testNames));
-	                    writeHeader(csvFile, "Submission", sortedTestNames);
-	                } else {
-	                    // Load sorted test names from the CSV file
-	                    loadSortedTestNames(csvFile);
-	                    // Write the results to the CSV file, using the previous subfolder name
-	                    writeResults(csvFile, testFolder, listener.getResults());
-	                }
+                     // Write the header to the CSV file if it's the first subfolder
+                     if (status.index == 0) {
+                         Set<String> testNames = listener.getResults().keySet();
+                         sortedTestNames.addAll(new TreeSet<>(testNames));
+                         writeHeader(csvFile, "Submission", sortedTestNames);
+                     } else {
+                         // Load sorted test names from the CSV file
+                         loadSortedTestNames(csvFile);
+                         // Write the results to the CSV file, using the previous subfolder name
+                         writeResults(csvFile, testFolder, listener.getResults());
+                     }
 
-	                // Update the last action to "testing"
-	                writeLastAction(lastActionFile, "testing");
+                     // Update the last action to "testing"
+                     status.nextAction = "copy";
+                     writeStatus(statusFile, status);
 
-	                System.out.println("Testing completed for " + testFolder);
-	            } else if ("testing".equals(lastAction)) {
-	                // COPY FILES FOR NEXT TEST
-	                if (index < subfolders.length) {
-	                    File subfolder = subfolders[index];
+                     System.out.println("Testing completed for " + testFolder);
+                 }
+                 if (do_copy) {
+                     // COPY FILES FOR NEXT TEST
+                     if (status.index < subfolders.length) {
+                         File subfolder = subfolders[status.index];
 
-	                    File srcFolder = new File(subfolder, submissionPackageFolder);
+                         File srcFolder = new File(subfolder, submissionPackageFolder);
 
-	                    // Copy .java files from subfolder to destination
-	                    copyJavaFiles(srcFolder, new File(packageFolder), filenames);
-	                    changePackageDeclarations(new File(packageFolder), packageName);
+                         // Copy .java files from subfolder to destination
+                         copyJavaFiles(srcFolder, new File(packageFolder), filenames);
+                         changePackageDeclarations(new File(packageFolder), packageName);
 
-	                    // Update the index for the next execution
-	                    writeIndex(indexFile, index + 1);
+                         // Update the index for the next execution
+                         status.index++;
+                         status.nextAction = "test";
+                         writeStatus(statusFile, status);
 
-	                    // Update the last action to "copying"
-	                    writeLastAction(lastActionFile, "copying");
+                         // Delay to allow eclipse to detect the new files
+                         TimeUnit.SECONDS.sleep(2);
 
-	                    // Delay to allow eclipse to detect the new files
-	                    TimeUnit.SECONDS.sleep(2);
+                         System.out.println("Copied source files for " + subfolder.getName());
+                         System.out.println("=============RUN TESTS==============");
+                     } else {
+                         System.out.println("All submissions have been tested.");
+                     }
+                 }
+            } catch (Exception e) {
+                System.out.println("EXCEPTION: " + e.getMessage());
+            }
+        } else {
+            System.out.println("All submissions have been tested.");
+        }
+    }
 
-	                    System.out.println("Copied source files for " + subfolder.getName());
-	                    System.out.println("=============CONTINUE==============");
-	                } else {
-	                    System.out.println("All submissions have been tested.");
-	                }
-	            }
-	        } catch (Exception e) {
-	            System.out.println("EXCEPTION: " + e.getMessage());
-	        }
-	    } else {
-	        System.out.println("All submissions have been tested.");
-	    }
-	}
+    // Method to read the status (index and last action) from the file
+    private static Status readStatus(String statusFile, int maxIndex) throws IOException {
+        Path path = Paths.get(statusFile);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+            return new Status(0, "");
+        } else {
+            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8).trim();
+            String[] parts = content.split(";");
+            try {
+                int index = Integer.parseInt(parts[0]);
+                String lastAction = parts.length > 1 ? parts[1] : "";
+                return new Status(Math.min(index, maxIndex), lastAction);
+            } catch (NumberFormatException e) {
+                return new Status(0, "");
+            }
+        }
+    }
 
-	// Method to read the last action from the file
-	private static String readLastAction(String lastActionFile) throws IOException {
-	    Path path = Paths.get(lastActionFile);
-	    if (Files.exists(path)) {
-	        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8).trim();
-	    }
-	    return "";
-	}
+    // Method to write the status (index and last action) to the file
+    private static void writeStatus(String statusFile, Status status) throws IOException {
+        String content = status.index + ";" + status.nextAction;
+        Files.write(Paths.get(statusFile), content.getBytes(StandardCharsets.UTF_8));
+    }
 
-	// Method to write the last action to the file
-	private static void writeLastAction(String lastActionFile, String action) throws IOException {
-	    Files.write(Paths.get(lastActionFile), action.getBytes(StandardCharsets.UTF_8));
-	}
+    // Status class to hold the index and last action
+    private static class Status {
+        int index;
+        String nextAction;
+
+        Status(int index, String lastAction) {
+            this.index = index;
+            this.nextAction = lastAction;
+        }
+    }
 
 
     private static void runTests(String packageName, TestResultListener listener) {
@@ -259,27 +282,6 @@ public class TestRunner {
         } else {
             return "package " + newPackage + ";\n\n" + content;
         }
-    }
-
-
-    private static int readIndex(String indexFile, int maxIndex) throws IOException {
-        Path path = Paths.get(indexFile);
-        if (!Files.exists(path)) {
-            Files.createFile(path);
-            return 0;
-        } else {
-            String content = Files.readString(path);
-            try {
-                int index = Integer.parseInt(content);
-                return Math.min(index, maxIndex);
-            } catch (NumberFormatException e) {
-                return 0;
-            }
-        }
-    }
-
-    private static void writeIndex(String indexFile, int index) throws IOException {
-        Files.writeString(Paths.get(indexFile), String.valueOf(index));
     }
     
     private static void loadSortedTestNames(String csvFile) throws IOException {

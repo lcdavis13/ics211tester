@@ -17,8 +17,8 @@ public class EdiblePlantTester {
     // Test class that inherits from EdiblePlant for testing purposes
     class TestPlant extends EdiblePlant {
         TestPlant() {
-//        	plantName = "TestPlant";
-//        	plantType = PlantType.GRAIN; 
+        	plantName = "TestPlant";
+        	plantType = PlantType.GRAIN; 
         }
 
         @Override
@@ -40,35 +40,35 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void zBASEnameTest() {
+    public void testName() {
         assertEquals("TestPlant", plant.name());
     }
 
     @Test
-    public void zBASEtypeTest() {
+    public void testType() {
         assertEquals(PlantType.GRAIN, plant.type()); // Assuming TestPlant is a type of GRAIN
     }
 
     @Test
-    public void zBASEavailableTest() {
+    public void testAvailable() {
         assertEquals(0, plant.available());
     }
 
     @Test
-    public void zBASEaddTest() {
+    public void testAdd() {
         plant.add(100);
         assertEquals(100, plant.available());
     }
 
     @Test
-    public void zBASEconsumeTest() {
+    public void testConsume() {
         plant.add(100);
         plant.consume(50);
         assertEquals(50, plant.available());
     }
 
     @Test
-    public void zBASEequalsTest() {
+    public void testEquals() {
         EdiblePlant otherPlant = new TestPlant();
         otherPlant.add(100);
         plant.add(100);
@@ -76,7 +76,7 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void zBASEisGreenAbstractMethodTest() {
+    public void testIsGreenAbstractMethod() {
         boolean isGreenFound = false;
         for (Method method : EdiblePlant.class.getDeclaredMethods()) {
             if (method.getName().equals("isGreen") && Modifier.isAbstract(method.getModifiers())) {
@@ -88,7 +88,7 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void zBASEcaloriesAbstractMethodTest() {
+    public void testCaloriesAbstractMethod() {
         boolean caloriesFound = false;
         for (Method method : EdiblePlant.class.getDeclaredMethods()) {
             if (method.getName().equals("calories") && Modifier.isAbstract(method.getModifiers())) {
