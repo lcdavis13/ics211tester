@@ -17,8 +17,8 @@ public class EdiblePlantTester {
     // Test class that inherits from EdiblePlant for testing purposes
     class TestPlant extends EdiblePlant {
         TestPlant() {
-//        	plantName = "TestPlant";
-//        	plantType = PlantType.GRAIN; 
+        	plantName = "TestPlant";
+        	plantType = PlantType.GRAIN; 
         }
 
         @Override
