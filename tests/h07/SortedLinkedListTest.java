@@ -100,27 +100,31 @@ public class SortedLinkedListTest {
     	int expectedSize = expectedElements.length;
     	
     	boolean removeSuccess = list.remove(elementToRemove);
+    	
+    	assertEquals(removeSuccess, expectedSuccess, " returned incorrect ");
+    	
         boolean validationSuccess = false;
 
+        assertEquals(expectedSize, list.size(), " size incorrect ");
+
         try {
-            assertEquals(expectedSize, list.size());
             for (int i = 0; i < expectedElements.length; i++) {
                 assertEquals(expectedElements[i], list.get(i));
             }
             validationSuccess = true;
-        } catch (AssertionError ignored) {
+        } catch (Exception ignored) {
         }
 
         try {
             assertEquals(-1, list.indexOf(elementToRemove));
-            for (double expectedElement : expectedElements) {
-                assertTrue(list.indexOf(expectedElement) != -1);
+            for (int i = 0; i < expectedElements.length; i++) {
+                assertEquals(i, list.indexOf(expectedElements[i]));
             }
             validationSuccess = true;
-        } catch (AssertionError ignored) {
+        } catch (Exception ignored) {
         }
 
-        assertTrue((removeSuccess == expectedSuccess) && validationSuccess, "Removal of element " + elementToRemove + " failed or the remaining elements are incorrect.");
+        assertTrue(validationSuccess, "get && indexOf incorrect");
     }
 
 

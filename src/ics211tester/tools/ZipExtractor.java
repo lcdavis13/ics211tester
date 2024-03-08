@@ -13,7 +13,7 @@ import java.util.zip.ZipInputStream;
 public class ZipExtractor {
     
     public static void main(String[] args) {
-        String rootDirectory = "./submissions/h01";
+        String rootDirectory = "./submissions/h03";
         extractFiles(new File(rootDirectory));
     }
     
@@ -27,10 +27,28 @@ public class ZipExtractor {
             }
         } else {
             if (rootDir.getName().endsWith(".zip") || rootDir.getName().endsWith(".jar")) {
+                // Delete existing extracted directory if it exists
+                File extractedDir = new File(rootDir.getAbsolutePath() + "_extracted");
+                if (extractedDir.exists()) {
+                    deleteDirectory(extractedDir);
+                }
                 extractZip(rootDir.getAbsolutePath());
             }
         }
     }
+
+    public static void deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    deleteDirectory(file); // Recursively call deleteDirectory for directories
+                }
+            }
+        }
+        directory.delete();
+    }
+
     
     public static void extractZip(String filePath) {
         File dir = new File(filePath + "_extracted");

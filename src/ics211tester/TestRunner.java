@@ -31,11 +31,15 @@ public class TestRunner {
     private static List<String> sortedTestNames = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
+    	String assignment = "h03";
+        String[] filenames = {"Dates.java", "HW1.java", "Reader.java"};
+    	
+    	
         String packageName = "ics211tester.tests";
         String csvFile = "test-results.csv";
-        String submissionFolder = "submissions/h01/";
+        String submissionFolder = "submissions/" + assignment + "/";
         String submissionPackageFolder = "Submission attachment(s)/";
-        String packageFolder = "src/edu/ics211/h01/";
+        String packageFolder = "src/edu/ics211/" + assignment + "/";
         String indexFile = "submission-index.txt";
 
         // Create the CSV file if it doesn't exist
@@ -81,7 +85,7 @@ public class TestRunner {
 	                File srcFolder = new File(subfolder, submissionPackageFolder);
 	
 	                // Copy .java files from subfolder to destination
-	                copyJavaFiles(srcFolder, new File(packageFolder));
+	                copyJavaFiles(srcFolder, new File(packageFolder), filenames);
 	
 	                // Update the index for the next execution
 	                writeIndex(indexFile, index + 1);
@@ -139,7 +143,7 @@ public class TestRunner {
         }
     }
 
-    private static void copyJavaFiles(File sourceDir, File destDir) throws IOException {
+    private static void copyJavaFiles(File sourceDir, File destDir, String[] filenames) throws IOException {
         if (!destDir.exists()) {
             destDir.mkdir();
         }
@@ -151,9 +155,22 @@ public class TestRunner {
             }
         }
 
+        // Convert filenames array to a list for easier checking
+        List<String> filenameList = Arrays.asList(filenames);
+
         // Copy new files
-        for (File file : sourceDir.listFiles((dir, name) -> name.endsWith(".java"))) {
-            Files.copy(file.toPath(), Paths.get(destDir.getPath(), file.getName()));
+        copyJavaFilesRecursively(sourceDir, destDir, filenameList);
+    }
+
+    private static void copyJavaFilesRecursively(File sourceDir, File destDir, List<String> filenames) throws IOException {
+        for (File file : sourceDir.listFiles()) {
+            if (file.isDirectory()) {
+                // Recursively search in subdirectories
+                copyJavaFilesRecursively(file, destDir, filenames);
+            } else if (file.getName().endsWith(".java") && filenames.contains(file.getName())) {
+                // Copy file if it's a Java file and its name is in the list
+                Files.copy(file.toPath(), Paths.get(destDir.getPath(), file.getName()));
+            }
         }
     }
 
