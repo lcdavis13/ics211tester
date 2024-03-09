@@ -199,7 +199,7 @@ public class TestRunner {
                 String result = results.getOrDefault(testName, "");
                 if (result.contains("FAILED"))
                 	result = "0";
-				else if (result.contains("PASSED"))
+				else if (result.contains("SUCCESSFUL"))
 					result = "1";
                 writer.append(result).append(',');
             }
