@@ -48,7 +48,7 @@ public class TestRunner {
         String packageFolder = "src/edu/ics211/" + assignment + "/";
         String statusFile = "submission-status.txt"; // File to keep track of the index and the last action
 
-        boolean write_descriptions = false;
+        boolean write_descriptions = true;
 
         // Create the CSV file if it doesn't exist
         if (!Files.exists(Paths.get(csvFile))) {
@@ -217,7 +217,7 @@ public class TestRunner {
             writer.append(',');
             for (String testName : sortedTestNames) {
                 String result = results.getOrDefault(testName, "");
-                writer.append(result).append(',');
+                writer.append("\"").append(result).append("\"").append(',');
             }
             writer.append('\n');
         }
