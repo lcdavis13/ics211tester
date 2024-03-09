@@ -48,6 +48,8 @@ public class TestRunner {
         String packageFolder = "src/edu/ics211/" + assignment + "/";
         String statusFile = "submission-status.txt"; // File to keep track of the index and the last action
 
+        boolean write_descriptions = false;
+
         // Create the CSV file if it doesn't exist
         if (!Files.exists(Paths.get(csvFile))) {
             Files.createFile(Paths.get(csvFile));
@@ -81,12 +83,16 @@ public class TestRunner {
                      if (status.index == 0) {
                          Set<String> testNames = listener.getResults().keySet();
                          sortedTestNames.addAll(new TreeSet<>(testNames));
-                         writeHeader(csvFile, "Submission", sortedTestNames);
+                         writeHeader(csvFile, "Submission", "Notes", sortedTestNames);
+                         
+						if (write_descriptions) {
+                             writeDescriptions(csvFile, listener.getDescriptions());
+                         }
                      } else {
                          // Load sorted test names from the CSV file
                          loadSortedTestNames(csvFile);
                          // Write the results to the CSV file, using the previous subfolder name
-                         writeResults(csvFile, testFolder, listener.getResults());
+                         writeResults(csvFile, testFolder, listener.getResults(), listener.getFailedDescriptions());
                      }
 
                      // Update the last action to "testing"
@@ -175,37 +181,48 @@ public class TestRunner {
         launcher.execute(request);
     }
 
-    private static void writeHeader(String csvFile, String firstColumnName, List<String> testNames) throws IOException {
+    private static void writeHeader(String csvFile, String firstColumnName, String lastColumnName, List<String> testNames) throws IOException {
         try (FileWriter writer = new FileWriter(csvFile)) {
-            writer.append(firstColumnName);
-            if (!testNames.isEmpty()) {
-                writer.append(',');
-            }
+            writer.append(firstColumnName + ",");
             for (int i = 0; i < testNames.size(); i++) {
                 writer.append(testNames.get(i));
-                if (i < testNames.size() - 1) {
-                    writer.append(',');
-                }
+                writer.append(',');
             }
-            writer.append('\n');
+            writer.append(lastColumnName + '\n');
         }
     }
 
 
-    private static void writeResults(String csvFile, String subfolderName, Map<String, String> results) throws IOException {
+    private static void writeResults(String csvFile, String subfolderName, Map<String, String> results, String failedDescriptions) throws IOException {
         try (FileWriter writer = new FileWriter(csvFile, true)) {
             writer.append("\"").append(subfolderName).append("\"").append(',');
+            //StringBuilder failedTestsDesc = new StringBuilder();
             for (String testName : sortedTestNames) {
                 String result = results.getOrDefault(testName, "");
-                if (result.contains("FAILED"))
-                	result = "0";
-				else if (result.contains("SUCCESSFUL"))
-					result = "1";
+                if (result.contains("FAILED")) {
+                    result = "0";
+                    //failedTestsDesc.append(failedDescriptions.get(testName)).append("; ");
+                } else if (result.contains("SUCCESSFUL")) {
+                    result = "1";
+                }
+                writer.append(result).append(',');
+            }
+            writer.append("\"").append(failedDescriptions.trim()).append("\"").append('\n');
+        }
+    }
+    
+
+    private static void writeDescriptions(String csvFile, Map<String, String> results) throws IOException {
+        try (FileWriter writer = new FileWriter(csvFile, true)) {
+            writer.append(',');
+            for (String testName : sortedTestNames) {
+                String result = results.getOrDefault(testName, "");
                 writer.append(result).append(',');
             }
             writer.append('\n');
         }
     }
+
 
     private static void copyJavaFiles(File sourceDir, File destDir, String[] filenames) throws IOException {
         if (!destDir.exists()) {
@@ -296,9 +313,11 @@ public class TestRunner {
         try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
             String header = reader.readLine();
             if (header != null) {
+                // Split the header and remove the first column (Submission) and the last column (Failed Test Descriptions)
                 String[] names = header.split(",");
-                sortedTestNames = Arrays.asList(Arrays.copyOfRange(names, 1, names.length));
+                sortedTestNames = Arrays.asList(Arrays.copyOfRange(names, 1, names.length - 1));
             }
         }
     }
+
 }
