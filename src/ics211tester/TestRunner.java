@@ -197,6 +197,10 @@ public class TestRunner {
             writer.append("\"").append(subfolderName).append("\"").append(',');
             for (String testName : sortedTestNames) {
                 String result = results.getOrDefault(testName, "");
+                if (result.contains("FAILED"))
+                	result = "0";
+				else if (result.contains("PASSED"))
+					result = "1";
                 writer.append(result).append(',');
             }
             writer.append('\n');
