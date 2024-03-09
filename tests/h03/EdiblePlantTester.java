@@ -40,35 +40,35 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void testName() {
+    public void zBASEnameTest() {
         assertEquals("TestPlant", plant.name());
     }
 
     @Test
-    public void testType() {
+    public void zBASEtypeTest() {
         assertEquals(PlantType.GRAIN, plant.type()); // Assuming TestPlant is a type of GRAIN
     }
 
     @Test
-    public void testAvailable() {
+    public void zBASEavailableTest() {
         assertEquals(0, plant.available());
     }
 
     @Test
-    public void testAdd() {
+    public void zBASEaddTest() {
         plant.add(100);
         assertEquals(100, plant.available());
     }
 
     @Test
-    public void testConsume() {
+    public void zBASEconsumeTest() {
         plant.add(100);
         plant.consume(50);
         assertEquals(50, plant.available());
     }
 
     @Test
-    public void testEquals() {
+    public void zBASEequalsTest() {
         EdiblePlant otherPlant = new TestPlant();
         otherPlant.add(100);
         plant.add(100);
@@ -76,7 +76,7 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void testIsGreenAbstractMethod() {
+    public void zBASEisGreenAbstractMethodTest() {
         boolean isGreenFound = false;
         for (Method method : EdiblePlant.class.getDeclaredMethods()) {
             if (method.getName().equals("isGreen") && Modifier.isAbstract(method.getModifiers())) {
@@ -88,7 +88,7 @@ public class EdiblePlantTester {
     }
 
     @Test
-    public void testCaloriesAbstractMethod() {
+    public void zBASEcaloriesAbstractMethodTest() {
         boolean caloriesFound = false;
         for (Method method : EdiblePlant.class.getDeclaredMethods()) {
             if (method.getName().equals("calories") && Modifier.isAbstract(method.getModifiers())) {

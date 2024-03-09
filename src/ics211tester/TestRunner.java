@@ -222,8 +222,11 @@ public class TestRunner {
         // Convert filenames array to a list for easier checking
         List<String> filenameList = Arrays.asList(filenames);
 
+        // Check if the source directory contains all the filenames
+        boolean containsAllFilenames = containsAllFilenames(sourceDir, filenameList);
+
         // Copy new files
-        copyJavaFilesRecursively(sourceDir, destDir, filenameList, false);
+        copyJavaFilesRecursively(sourceDir, destDir, filenameList, containsAllFilenames);
     }
 
     private static void copyJavaFilesRecursively(File sourceDir, File destDir, List<String> filenames, boolean copyAll) throws IOException {
@@ -239,6 +242,7 @@ public class TestRunner {
             }
         }
     }
+
 
     private static boolean containsAllFilenames(File directory, List<String> filenames) {
         // Get all Java files in the directory

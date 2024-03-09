@@ -175,7 +175,7 @@ public class AllFoodTester {
         EdiblePlant rice = new Rice();
         assertEquals("rice", rice.name().toLowerCase());
         assertFalse(rice.isGreen());
-        assertEquals(129, rice.calories(100), 0.01); // Assuming 1.29 calories/gram
+        assertEquals(129, rice.calories(100.0), 0.01); // Assuming 1.29 calories/gram
         assertNotNull(rice.toString());
         assertTrue(rice.toString().toLowerCase().contains("rice"));
     }
@@ -186,7 +186,7 @@ public class AllFoodTester {
         EdiblePlant barley = new Barley();
         assertEquals("barley", barley.name().toLowerCase());
         assertFalse(barley.isGreen());
-        assertEquals(123, barley.calories(100), 0.01); // Assuming 1.23 calories/gram
+        assertEquals(123, barley.calories(100.0), 0.01); // Assuming 1.23 calories/gram
         assertNotNull(barley.toString());
         assertTrue(barley.toString().toLowerCase().contains("barley"));
     }
@@ -197,7 +197,7 @@ public class AllFoodTester {
         EdiblePlant lettuce = new Lettuce();
         assertEquals("lettuce", lettuce.name().toLowerCase());
         assertTrue(lettuce.isGreen());
-        assertEquals(15, lettuce.calories(100), 0.01); // Assuming 0.15 calories/gram
+        assertEquals(15, lettuce.calories(100.0), 0.01); // Assuming 0.15 calories/gram
         assertNotNull(lettuce.toString());
         assertTrue(lettuce.toString().toLowerCase().contains("lettuce"));
     }
@@ -208,7 +208,7 @@ public class AllFoodTester {
         EdiblePlant carrot = new Carrot();
         assertEquals("carrot", carrot.name().toLowerCase());
         assertTrue(!carrot.isGreen());
-        assertEquals(41, carrot.calories(100), 0.01); // Assuming 0.41 calories/gram
+        assertEquals(41, carrot.calories(100.0), 0.01); // Assuming 0.41 calories/gram
         assertNotNull(carrot.toString());
         assertTrue(carrot.toString().toLowerCase().contains("carrot"));
     }
