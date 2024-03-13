@@ -1,5 +1,6 @@
 package ics211tester.tests;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import edu.ics211.h03.Edible;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class AllFoodTester {
 
     @Test
+    @DisplayName("PlantType enum should be defined with GRAIN, FRUIT, and VEGETABLE")
     public void DEFplantTypeEnumTest() {
         assertNotNull(PlantType.GRAIN);
         assertNotNull(PlantType.FRUIT);
@@ -35,11 +37,13 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("EdiblePlant should be an abstract class")
     public void DEFediblePlantAbstractClassTest() {
         assertTrue(Modifier.isAbstract(EdiblePlant.class.getModifiers()));
     }
 
     @Test
+    @DisplayName("Edible should be an interface implemented by EdiblePlant")
     public void DEFedibleInterfaceTest() {
         assertTrue(Edible.class.isInterface());
         assertTrue(EdiblePlant.class.getInterfaces().length > 0);
@@ -47,47 +51,55 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Grain should be an abstract class extending EdiblePlant")
     public void DEFgrainClassTest() {
         assertTrue(Grain.class.getSuperclass().equals(EdiblePlant.class));
         assertTrue(Modifier.isAbstract(Grain.class.getModifiers()));
     }
 
     @Test
+    @DisplayName("Fruit should be an abstract class extending EdiblePlant")
     public void DEFfruitClassTest() {
         assertTrue(Fruit.class.getSuperclass().equals(EdiblePlant.class));
         assertTrue(Modifier.isAbstract(Fruit.class.getModifiers()));
     }
 
     @Test
+    @DisplayName("Vegetable should be a concrete class extending EdiblePlant")
     public void DEFvegetableClassTest() {
         assertTrue(Vegetable.class.getSuperclass().equals(EdiblePlant.class));
         assertFalse(Modifier.isAbstract(Vegetable.class.getModifiers()));
     }
 
     @Test
+    @DisplayName("Rice and Barley should extend Grain")
     public void DEFriceAndBarleyTest() {
         assertTrue(Rice.class.getSuperclass().equals(Grain.class));
         assertTrue(Barley.class.getSuperclass().equals(Grain.class));
     }
 
     @Test
+    @DisplayName("Lettuce and Carrot should extend Vegetable")
     public void DEFlettuceAndCarrotTest() {
         assertTrue(Lettuce.class.getSuperclass().equals(Vegetable.class));
         assertTrue(Carrot.class.getSuperclass().equals(Vegetable.class));
     }
 
     @Test
+    @DisplayName("NegativeOrZeroAmountException should extend RuntimeException")
     public void DEFnegativeOrZeroAmountExceptionTest() {
         assertTrue(NegativeOrZeroAmountException.class.getSuperclass().equals(RuntimeException.class));
     }
 
     @Test
+    @DisplayName("Available amount should be zero initially")
     public void FUNavailableZeroTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         assertEquals(0, plant.available());
     }
 
     @Test
+    @DisplayName("Add should increase available amount")
     public void FUNaddTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         double initialAmount = plant.available();
@@ -100,6 +112,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Consuming should decrease available amount")
     public void FUNconsumeAvailableTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         try {
@@ -115,6 +128,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Consuming too much should return the current available amount")
     public void FUNconsumeUnvailableTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         try {
@@ -129,6 +143,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Adding negative or zero amount should throw NegativeOrZeroAmountException")
     public void FUNaddThrowsTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         assertThrows(NegativeOrZeroAmountException.class, () -> plant.add(-1));
@@ -136,6 +151,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Consuming negative or zero amount should throw NegativeOrZeroAmountException")
     public void FUNconsumeThrowsTest() {
         EdiblePlant plant = new Lettuce(); // Using Lettuce as a concrete class for testing
         assertThrows(NegativeOrZeroAmountException.class, () -> plant.consume(-1));
@@ -143,9 +159,10 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Two plants with the same properties should be equal")
     public void FUNequalsTest() {
-    	Lettuce plant1 = new Lettuce();
-    	Lettuce plant2 = new Lettuce();
+        Lettuce plant1 = new Lettuce();
+        Lettuce plant2 = new Lettuce();
         try {
             plant1.add(100);
             plant2.add(100);
@@ -156,6 +173,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("Two plants with similar amounts should be equal")
     public void FUNequalsApproxTest() {
         Lettuce plant1 = new Lettuce();
         Lettuce plant2 = new Lettuce();
@@ -168,9 +186,9 @@ public class AllFoodTester {
         }
     }
 
-
     // Test methods for Rice class
     @Test
+    @DisplayName("Rice incorrect")
     public void PLANTriceMethodsTest() {
         EdiblePlant rice = new Rice();
         assertEquals("rice", rice.name().toLowerCase());
@@ -182,6 +200,7 @@ public class AllFoodTester {
 
     // Test methods for Barley class
     @Test
+    @DisplayName("Barley incorrect")
     public void PLANTbarleyMethodsTest() {
         EdiblePlant barley = new Barley();
         assertEquals("barley", barley.name().toLowerCase());
@@ -193,6 +212,7 @@ public class AllFoodTester {
 
     // Test methods for Lettuce class
     @Test
+    @DisplayName("Lettuce incorrect")
     public void PLANTlettuceMethodsTest() {
         EdiblePlant lettuce = new Lettuce();
         assertEquals("lettuce", lettuce.name().toLowerCase());
@@ -204,6 +224,7 @@ public class AllFoodTester {
 
     // Test methods for Carrot class
     @Test
+    @DisplayName("Carrot incorrect")
     public void PLANTcarrotMethodsTest() {
         EdiblePlant carrot = new Carrot();
         assertEquals("carrot", carrot.name().toLowerCase());
@@ -234,6 +255,7 @@ public class AllFoodTester {
     }
 
     @Test
+    @DisplayName("There should be 3 non-abstract fruit classes")
     public void PLANT3FruitClassesExistTest() {
         Set<Class> classes = findAllClassesUsingClassLoader("edu.ics211.h03");
         long nonAbstractFruitCount = classes.stream()
@@ -243,6 +265,4 @@ public class AllFoodTester {
 
         assertTrue(3 <= nonAbstractFruitCount, "There should be exactly 3 non-abstract fruit classes.");
     }
- 
-
 }
