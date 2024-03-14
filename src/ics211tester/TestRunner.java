@@ -36,8 +36,8 @@ public class TestRunner {
 	private static List<String> sortedTestNames = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
-        String assignment = "h03";
-        String[] filenames = {"EdiblePlant.java"};
+        String assignment = "h04";
+        String[] filenames = {"hw04.java"};
 
         boolean breakAfterTest = false;
         String packageName = "edu.ics211." + assignment;
@@ -111,6 +111,7 @@ public class TestRunner {
                          // Copy .java files from subfolder to destination
                          copyJavaFiles(srcFolder, new File(packageFolder), filenames);
                          changePackageDeclarations(new File(packageFolder), packageName);
+                         makeCertainThingsPublic(new File(packageFolder), new String[]{"String sortChars", "SortType", "void swap"});
 
                          // Update the index for the next execution
                          status.index++;
@@ -308,6 +309,52 @@ public class TestRunner {
             return "package " + newPackage + ";\n\n" + content;
         }
     }
+    
+    public static void makeCertainThingsPublic(File folder, String[] functionNames) {
+        File[] listOfFiles = folder.listFiles();
+
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.isFile() && file.getName().endsWith(".java")) {
+                    try {
+                        String content = new String(Files.readAllBytes(file.toPath()));
+                        String updatedContent = replacePrivateDeclaration(content, functionNames);
+
+                        if (!updatedContent.equals(content)) {
+                            Files.write(file.toPath(), updatedContent.getBytes());
+                            System.out.println("Made some things public in: " + file.getName());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    public static String replacePrivateDeclaration (String content, String[] declarations) {
+    	// Escape special characters in declaration names for regex
+        String[] escapedDeclarations = new String[declarations.length];
+        for (int i = 0; i < declarations.length; i++) {
+            escapedDeclarations[i] = Pattern.quote(declarations[i]);
+        }
+
+        // Build a regex pattern to match the function, class, and enum declarations
+        String regex = "(?m)^(\\s*)((private|protected)?\\s*)(static\\s+)?((class|enum)\\s+)?(\\w+\\s+)?(" + String.join("|", escapedDeclarations) + ")(\\s*\\(|\\s+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(content);
+
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            // Replace the access modifier with "public" or add "public" if not present
+            String replacement = matcher.group(1) + "public " + (matcher.group(4) != null ? matcher.group(4) : "") + (matcher.group(5) != null ? matcher.group(5) : "") + (matcher.group(7) != null ? matcher.group(7) : "") + matcher.group(8) + matcher.group(9);
+            matcher.appendReplacement(sb, replacement);
+        }
+        matcher.appendTail(sb);
+
+        return sb.toString();
+    }
+
     
     private static void loadSortedTestNames(String csvFile) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
