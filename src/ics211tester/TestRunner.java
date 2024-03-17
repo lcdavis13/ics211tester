@@ -36,8 +36,8 @@ public class TestRunner {
 	private static List<String> sortedTestNames = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
-        String assignment = "h04";
-        String[] filenames = {"hw04.java"};
+        String assignment = "h06";
+        String[] filenames = {"SortedArrayList.java"};
 
         boolean breakAfterTest = false;
         String packageName = "edu.ics211." + assignment;
