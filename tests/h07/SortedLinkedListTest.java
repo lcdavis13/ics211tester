@@ -1,3 +1,6 @@
+// TO DO: update to match newer tests in SortedArraListTest, but with different duplicate behavior
+
+
 package ics211tester.tests;
 
 import edu.ics211.h07.SortedLinkedList;
@@ -108,20 +111,26 @@ public class SortedLinkedListTest {
         assertEquals(expectedSize, list.size(), " size incorrect ");
 
         try {
+        	try {
             for (int i = 0; i < expectedElements.length; i++) {
                 assertEquals(expectedElements[i], list.get(i));
             }
             validationSuccess = true;
-        } catch (Exception ignored) {
         }
+    	catch (Exception ignored2) {}
+    } catch (AssertionError ignored) {
+    }
 
         try {
+        	try {
             assertEquals(-1, list.indexOf(elementToRemove));
             for (int i = 0; i < expectedElements.length; i++) {
                 assertEquals(i, list.indexOf(expectedElements[i]));
             }
             validationSuccess = true;
-        } catch (Exception ignored) {
+        } 
+    	catch (Exception ignored2) {}
+        } catch (AssertionError ignored) {
         }
 
         assertTrue(validationSuccess, "get && indexOf incorrect");
@@ -143,7 +152,6 @@ public class SortedLinkedListTest {
 
     @Test
     void testToString() {
-        assertEquals("", list.toString());
         list.add(5.0);
         assertTrue(list.toString().matches(".*5\\.0.*"), "Expected: 5.0, but was: " + list.toString());
         list.add(3.0);
@@ -152,6 +160,11 @@ public class SortedLinkedListTest {
         assertTrue(list.toString().matches(".*3\\.0.*5\\.0.*7\\.0.*"), "Expected: 3.0 5.0 7.0, but was: " + list.toString());
         list.add(4.0);
         assertTrue(list.toString().matches(".*3\\.0.*4\\.0.*5\\.0.*7\\.0.*"), "Expected: 3.0 4.0 5.0 7.0, but was: " + list.toString());
+    }
+
+    @Test
+    void testToStringEmpty() {
+        assertEquals("", list.toString());
     }
 
 
