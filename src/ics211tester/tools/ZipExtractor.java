@@ -13,7 +13,7 @@ import java.util.zip.ZipInputStream;
 public class ZipExtractor {
     
     public static void main(String[] args) {
-        String rootDirectory = "./submissions/h04";
+        String rootDirectory = "./submissions/h06";
         extractFiles(new File(rootDirectory));
     }
     

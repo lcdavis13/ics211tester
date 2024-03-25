@@ -1,5 +1,6 @@
 // TO DO: test whether they properly ignore case for sorting & duplicates
 // try to grade on sorting separately somehow for get and indexOf - like just test that they're all there if we get every element
+//test all methods with various degrees of capacity remaining; I know some fail only when capacity is not reached
 
 package ics211tester.tests;
 
@@ -34,7 +35,7 @@ public class SortedArrayListTest {
 	
 	@Test
 	@DisplayName("SortedArrayList method definitions not correct")
-	public void aaDefMethods() throws NoSuchMethodException {
+	public void aADefMethods() throws NoSuchMethodException {
 		aDefSizeTest();
 		aDefGetTest();
 		aDefAddTest();
@@ -252,7 +253,7 @@ public class SortedArrayListTest {
         assertEquals(1, list.indexOf("derryl"));
         assertEquals(2, list.indexOf("edward"));
         assertEquals(3, list.indexOf("george"));
-        assertEquals(-1, list.indexOf("jason"));
+        assertTrue(list.indexOf("jason") < 0);
     }
 
 
@@ -287,12 +288,12 @@ public class SortedArrayListTest {
 
     @Test
     void eIndexOfError() {
-        assertEquals(-1, list.indexOf("jason"));
+        assertTrue(list.indexOf("jason") < 0);
         list.add("edward");
         list.add("chuck");
         list.add("george");
         list.add("derryl");
-        assertEquals(-1, list.indexOf("jason"));
+        assertTrue(list.indexOf("henry") < 0);
     }
 
     @Test
@@ -300,31 +301,31 @@ public class SortedArrayListTest {
     void gGToStringAll() {
         assertEquals("", list.toString());
         list.add("edward");
-        assertTrue(list.toString().matches(".*edward.*"), "Expected: edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*edward.*"), "Expected: edward, but was: " + list.toString());
         list.add("chuck");
-        assertTrue(list.toString().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
         list.add("edward");
-        assertTrue(list.toString().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
         list.add("george");
-        assertTrue(list.toString().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
         list.add("edward");
-        assertTrue(list.toString().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
         list.add("derryl");
-        assertTrue(list.toString().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
         list.add("chuck");
-        assertTrue(list.toString().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
     }
 
     @Test
     void gToString() {
         list.add("edward");
-        assertTrue(list.toString().matches(".*edward.*"), "Expected: edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*edward.*"), "Expected: edward, but was: " + list.toString());
         list.add("chuck");
-        assertTrue(list.toString().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
         list.add("george");
-        assertTrue(list.toString().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
         list.add("derryl");
-        assertTrue(list.toString().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
     }
 
     @Test
@@ -332,13 +333,13 @@ public class SortedArrayListTest {
         list.add("edward");
         list.add("chuck");
         list.add("edward");
-        assertTrue(list.toString().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*"), "Expected: chuck edward, but was: " + list.toString());
         list.add("george");
         list.add("edward");
-        assertTrue(list.toString().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*edward.*george.*"), "Expected: chuck edward george, but was: " + list.toString());
         list.add("derryl");
         list.add("chuck");
-        assertTrue(list.toString().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
+        assertTrue(list.toString().toLowerCase().matches(".*chuck.*derryl.*edward.*george.*"), "Expected: chuck derryl edward george, but was: " + list.toString());
     }
 
     @Test
@@ -348,10 +349,49 @@ public class SortedArrayListTest {
 
 
     @Test
-    @DisplayName("Remove is incorrect")
+    @DisplayName("Remove should return true when element is present")
+    void fRemoveReturnTrue() {
+        list.add("edward");
+        list.add("chuck");
+        list.add("george");
+        list.add("derryl");
+
+        assertTrue(list.remove("edward"));
+        assertTrue(list.remove("george"));
+        assertTrue(list.remove("chuck"));
+        assertTrue(list.remove("derryl"));
+    }
+
+
+    @Test
+    @DisplayName("Remove should return false when element is not present")
+    void fRemoveReturnFalse() {
+        list.add("edward");
+        list.add("chuck");
+        list.add("george");
+        list.add("derryl");
+
+        assertFalse(list.remove("test"));
+        assertFalse(list.remove("frank"));
+        assertFalse(list.remove("jason"));
+    }
+
+
+    @Test
+    @DisplayName("Remove should return false when list is empty")
+    void fRemoveRetrunFalseEmpty() {
+        assertFalse(list.remove("edward"));
+        assertFalse(list.remove("george"));
+        assertFalse(list.remove("chuck"));
+        assertFalse(list.remove("derryl"));
+    }
+
+
+    @Test
+    @DisplayName("Remove not correctly altering the list, or no other methods are working to allow inspection of removed results")
     void fFRemoveAll() {
         // Remove nonexistent element from empty
-        assertRemoveElement("drake", false, new String[]{});
+        assertRemoveElement("drake", new String[]{});
         
         list.add("chuck");
         list.add("edward");
@@ -362,28 +402,27 @@ public class SortedArrayListTest {
         list.add("chuck");
 
         // Remove middle element
-        assertRemoveElement("edward", true, new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("edward", new String[]{"chuck", "derryl", "george"});
 
         // Remove nonexistent elements
-        assertRemoveElement("aaron", false, new String[]{"chuck", "derryl", "george"});
-        assertRemoveElement("gregor", false, new String[]{"chuck", "derryl", "george"});
-        assertRemoveElement("craig", false, new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("aaron", new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("gregor", new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("craig", new String[]{"chuck", "derryl", "george"});
 
         // Remove last element
-        assertRemoveElement("george", true, new String[]{"chuck", "derryl"});
+        assertRemoveElement("george", new String[]{"chuck", "derryl"});
 
         // Remove element again should fail
-        assertRemoveElement("george", false, new String[]{"chuck", "derryl"});
+        assertRemoveElement("george", new String[]{"chuck", "derryl"});
 
         // Remove first element
-        assertRemoveElement("chuck", true, new String[]{"derryl"});
+        assertRemoveElement("chuck", new String[]{"derryl"});
 
         // Remove final element
-        assertRemoveElement("derryl", true, new String[]{});
+        assertRemoveElement("derryl", new String[]{});
         
     }
-
-
+    
     @Test
     void fRemove() {
         list.add("edward");
@@ -392,19 +431,18 @@ public class SortedArrayListTest {
         list.add("derryl");
 
         // Remove middle element
-        assertRemoveElement("edward", true, new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("edward", new String[]{"chuck", "derryl", "george"});
 
         // Remove last element
-        assertRemoveElement("george", true, new String[]{"chuck", "derryl"});
+        assertRemoveElement("george", new String[]{"chuck", "derryl"});
 
         // Remove first element
-        assertRemoveElement("chuck", true, new String[]{"derryl"});
+        assertRemoveElement("chuck", new String[]{"derryl"});
 
         // Remove final element
-        assertRemoveElement("derryl", true, new String[]{});
+        assertRemoveElement("derryl", new String[]{});
     }
-
-
+    
     @Test
     void fRemoveDuplicate() {
         list.add("chuck");
@@ -416,76 +454,91 @@ public class SortedArrayListTest {
         list.add("chuck");
 
         // Remove middle element
-        assertRemoveElement("edward", true, new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("edward", new String[]{"chuck", "derryl", "george"});
 
         // Remove last element
-        assertRemoveElement("george", true, new String[]{"chuck", "derryl"});
+        assertRemoveElement("george", new String[]{"chuck", "derryl"});
 
         // Remove first element
-        assertRemoveElement("chuck", true, new String[]{"derryl"});
+        assertRemoveElement("chuck", new String[]{"derryl"});
 
         // Remove final element
-        assertRemoveElement("derryl", true, new String[]{});
+        assertRemoveElement("derryl", new String[]{});
     }
-
-
+    
     @Test
     void fRemoveNonexistent() {
         // Remove nonexistent element from empty
-        assertRemoveElement("drake", false, new String[]{});
+        assertRemoveElement("drake", new String[]{});
         
         list.add("chuck");
         list.add("george");
         list.add("derryl");
         
         // Remove nonexistent elements
-        assertRemoveElement("aaron", false, new String[]{"chuck", "derryl", "george"});
-        assertRemoveElement("gregor", false, new String[]{"chuck", "derryl", "george"});
-        assertRemoveElement("craig", false, new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("aaron", new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("gregor", new String[]{"chuck", "derryl", "george"});
+        assertRemoveElement("craig", new String[]{"chuck", "derryl", "george"});
     }
+    
+    //test if we can confirm that remove works through any 1 of the 3 getter methods (in case some are unimplemented)
+    private void assertRemoveElement(String elementToRemove, String[] expectedElements) {
+    	
+    	list.remove(elementToRemove);
+    	
+        boolean getSuccess = false;
+        boolean indexOfSuccess = false;
+        boolean sizeSuccess = false;
+        boolean toStringSuccess = false;
 
-
-    @Test
-    void fRemoveEmpty() {
-        // Remove nonexistent element from empty
-        assertRemoveElement("drake", false, new String[]{});
-    }
-
-    private void assertRemoveElement(String elementToRemove, boolean expectedSuccess, String[] expectedElements) {
+        
+        //size
     	int expectedSize = expectedElements.length;
-    	
-    	boolean removeSuccess = list.remove(elementToRemove);
-    	
-    	assertEquals(removeSuccess, expectedSuccess, " returned incorrect ");
-    	
-        boolean validationSuccess = false;
-
-        assertEquals(expectedSize, list.size(), " size incorrect ");
-
         try {
-        	try {
+			if (expectedSize == list.size()) {
+				sizeSuccess = true;
+			}
+		} catch (Exception ignored) {sizeSuccess = false;}
+
+        
+        //get
+        try {
+            getSuccess = true;
             for (int i = 0; i < expectedElements.length; i++) {
-                assertEquals(expectedElements[i], list.get(i));
+				if (expectedElements[i] != list.get(i)) {
+					getSuccess = false;
+					break;
+				}
             }
-            validationSuccess = true;
-        	}
-        	catch (Exception ignored2) {}
-        } catch (AssertionError ignored) {
-        }
+		} catch (Exception ignored) {getSuccess = false;}
 
+        
+        //indexOf
         try {
-        	try {
-            assertEquals(-1, list.indexOf(elementToRemove));
+			if (list.indexOf(elementToRemove) < 0) {
+				indexOfSuccess = true;
+			}
             for (int i = 0; i < expectedElements.length; i++) {
                 assertEquals(i, list.indexOf(expectedElements[i]));
             }
-            validationSuccess = true;
-    	}
-    	catch (Exception ignored2) {}
-        } catch (AssertionError ignored) {
-        }
+            indexOfSuccess = true;
+		} catch (Exception ignored) {indexOfSuccess = false;}
 
-        assertTrue(validationSuccess, "get && indexOf incorrect");
+        
+        //toString
+    	String expectedPattern = String.join(".*", expectedElements);
+    	String badPattern = ".*" + elementToRemove + ".*";
+        try {
+        	String result = list.toString().toLowerCase();
+			toStringSuccess = result.matches(expectedPattern);
+			if (result.matches(badPattern)) {
+				toStringSuccess = false;
+			}
+		} catch (Exception ignored) {toStringSuccess = false;}
+        
+        
+
+        assertTrue(sizeSuccess || getSuccess || indexOfSuccess || toStringSuccess);
     }
 
 
