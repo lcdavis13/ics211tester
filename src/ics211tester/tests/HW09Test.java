@@ -19,109 +19,89 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.ics211.h09.HW09;
 
 public class HW09Test {
-
-	HW09 hw;
-	
-	@BeforeEach
-	void setUp() {
-		hw = new HW09();
-	}
     
     @Test
     @DisplayName("basic valid string not being marked valid")
     void AAtestBasicValid() {
-    	boolean success = false;
+        boolean success = false;
     
-    	try {
-    		BABtestRoundValid();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BBBtestSquareValid();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BCBtestCurlyValid();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BDBtestAngleValid();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	assertTrue(success);
+        try {
+            BABtestRoundValid();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BBBtestSquareValid();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BCBtestCurlyValid();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BDBtestAngleValid();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        assertTrue(success);
     }
-    
     
     @Test
     @DisplayName("more pops than pushes is invalid")
     void ABtestanyoverpop() {
-    	boolean success = false;
+        boolean success = false;
 
-    	try {
-    		BACtestRoundOverpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BBCtestSquareOverpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BCCtestCurlyOverpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BDCtestAngleOverpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	assertTrue(success);
+        try {
+            BACtestRoundOverpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BBCtestSquareOverpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BCCtestCurlyOverpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BDCtestAngleOverpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        assertTrue(success);
     }
 
     @Test
     @DisplayName("more pushes than pops is invalid")
     void ACtestanyunderpop() {
-    	boolean success = false;
+        boolean success = false;
 
-    	try {
-    		BADtestRoundUnderpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BBDtestSquareUnderpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BCDtestCurlyUnderpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	try {
-    		BDDtestAngleUnderpop();
-    		success = true;
-    	}
-		catch (AssertionError ignore) {}
-    	
-    	assertTrue(success);
+        try {
+            BADtestRoundUnderpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BBDtestSquareUnderpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BCDtestCurlyUnderpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        try {
+            BDDtestAngleUnderpop();
+            success = true;
+        } catch (AssertionError ignore) {}
+        
+        assertTrue(success);
     }
 
     @Test
@@ -134,18 +114,21 @@ public class HW09Test {
 
     @Test
     void BABtestRoundValid() {
+        HW09 hw = new HW09();
         String test1 = "a(b)c";
         assertTrue(hw.validSyntax(test1));
     }
 
     @Test
     void BACtestRoundOverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b))c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void BADtestRoundUnderpop() {
+        HW09 hw = new HW09();
         String test1 = "a((b)c";
         assertFalse(hw.validSyntax(test1));
     }
@@ -160,18 +143,21 @@ public class HW09Test {
 
     @Test
     void BBBtestSquareValid() {
+        HW09 hw = new HW09();
         String test1 = "a[b]c";
         assertTrue(hw.validSyntax(test1));
     }
 
     @Test
     void BBCtestSquareOverpop() {
+        HW09 hw = new HW09();
         String test1 = "a[b]]c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void BBDtestSquareUnderpop() {
+        HW09 hw = new HW09();
         String test1 = "a[[b]c";
         assertFalse(hw.validSyntax(test1));
     }
@@ -186,18 +172,23 @@ public class HW09Test {
 
     @Test
     void BCBtestCurlyValid() {
+        HW09 hw = new HW09();
         String test1 = "a{b}c";
         assertTrue(hw.validSyntax(test1));
     }
 
     @Test
-    void BCCtestCurlyOverpop() {
+    void BCCtestCurlyOverpop
+
+() {
+        HW09 hw = new HW09();
         String test1 = "a{b}}c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void BCDtestCurlyUnderpop() {
+        HW09 hw = new HW09();
         String test1 = "a{{b}c";
         assertFalse(hw.validSyntax(test1));
     }
@@ -212,18 +203,21 @@ public class HW09Test {
 
     @Test
     void BDBtestAngleValid() {
+        HW09 hw = new HW09();
         String test1 = "a<b>c";
         assertTrue(hw.validSyntax(test1));
     }
 
     @Test
     void BDCtestAngleOverpop() {
+        HW09 hw = new HW09();
         String test1 = "a<b>>c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void BDDtestAngleUnderpop() {
+        HW09 hw = new HW09();
         String test1 = "a<<b>c";
         assertFalse(hw.validSyntax(test1));
     }
@@ -247,80 +241,92 @@ public class HW09Test {
     
     @Test
     void CBTestMismatch12() {
+        HW09 hw = new HW09();
         String test = "a(b]c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch13() {
+        HW09 hw = new HW09();
         String test = "a(b}c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch14() {
+        HW09 hw = new HW09();
         String test = "a(b>c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch21() {
+        HW09 hw = new HW09();
         String test = "a[b)c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch23() {
+        HW09 hw = new HW09();
         String test = "a[b}c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch24() {
+        HW09 hw = new HW09();
         String test = "a[b>c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch31() {
+        HW09 hw = new HW09();
         String test = "a{b)c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch32() {
+        HW09 hw = new HW09();
         String test = "a{b]c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch34() {
+        HW09 hw = new HW09();
         String test = "a{b>c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch41() {
+        HW09 hw = new HW09();
         String test = "a<b)c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch42() {
+        HW09 hw = new HW09();
         String test = "a<b]c";
         assertFalse(hw.validSyntax(test));
     }
 
     @Test
     void CBTestMismatch43() {
+        HW09 hw = new HW09();
         String test = "a<b}c";
         assertFalse(hw.validSyntax(test));
     }
 
-
     @Test
     @DisplayName("empty string not being marked valid")
     void DAtestemptyvalid() {
+        HW09 hw = new HW09();
         String test1 = "";
         assertTrue(hw.validSyntax(test1));
     }
@@ -328,6 +334,7 @@ public class HW09Test {
     @Test
     @DisplayName("strings with no parentheses not being marked valid")
     void DBtestnoparensvalid() {
+        HW09 hw = new HW09();
         String test1 = "abc";
         assertTrue(hw.validSyntax(test1));
     }
@@ -342,17 +349,21 @@ public class HW09Test {
 
     @Test
     void DCBtestfirstvalid() {
+        HW09 hw = new HW09();
         String test1 = "(ab)c";
         assertTrue(hw.validSyntax(test1));
     }
+    
     @Test
     void DCDtestfirstoverpop() {
+        HW09 hw = new HW09();
         String test1 = ")a(b)c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void DDDtestfirstunderpop() {
+        HW09 hw = new HW09();
         String test1 = "(a(b)c";
         assertFalse(hw.validSyntax(test1));
     }
@@ -367,18 +378,21 @@ public class HW09Test {
 
     @Test
     void DDBtestlastvalid() {
+        HW09 hw = new HW09();
         String test1 = "a(bc)";
         assertTrue(hw.validSyntax(test1));
     }
 
     @Test
     void DDDtestlastoverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b))";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void DEDtestlastunderpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b)c(";
         assertFalse(hw.validSyntax(test1));
     }
@@ -394,6 +408,7 @@ public class HW09Test {
 
     @Test
     void EBtestlongvalid() {
+        HW09 hw = new HW09();
         String test1 = "a(bcdefghijklmnopqrstuvwxy)z";
         assertTrue(hw.validSyntax(test1));
     }
@@ -417,21 +432,23 @@ public class HW09Test {
         String test43 = "a<bcdefghijklmnopqrstuvwxy}z";
         
         assertFalse(
-    		hw.validSyntax(test12) || hw.validSyntax(test13) || hw.validSyntax(test14) ||
-    		hw.validSyntax(test21) || hw.validSyntax(test23) || hw.validSyntax(test24) ||
-    		hw.validSyntax(test31) || hw.validSyntax(test32) || hw.validSyntax(test34) ||
-    		hw.validSyntax(test41) || hw.validSyntax(test42) || hw.validSyntax(test43)
-		);
+            new HW09().validSyntax(test12) || new HW09().validSyntax(test13) || new HW09().validSyntax(test14) ||
+            new HW09().validSyntax(test21) || new HW09().validSyntax(test23) || new HW09().validSyntax(test24) ||
+            new HW09().validSyntax(test31) || new HW09().validSyntax(test32) || new HW09().validSyntax(test34) ||
+            new HW09().validSyntax(test41) || new HW09().validSyntax(test42) || new HW09().validSyntax(test43)
+        );
     }
 
     @Test
     void EDtestlongoverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b)cdefghijklmnopqrstuvwxy)z";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void EEtestlongunderpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b)cdefghijklmnopqrstuvwxy(z";
         assertFalse(hw.validSyntax(test1));
     }
@@ -455,6 +472,7 @@ public class HW09Test {
 
     @Test
     void FBAtestparallelvalid() {
+        HW09 hw = new HW09();
         String test1 = "a(b)c(d)e";
         assertTrue(hw.validSyntax(test1));
     }
@@ -478,27 +496,30 @@ public class HW09Test {
         String test43 = "a<b>c<d}e";
         
         assertFalse(
-    		hw.validSyntax(test12) || hw.validSyntax(test13) || hw.validSyntax(test14) ||
-    		hw.validSyntax(test21) || hw.validSyntax(test23) || hw.validSyntax(test24) ||
-    		hw.validSyntax(test31) || hw.validSyntax(test32) || hw.validSyntax(test34) ||
-    		hw.validSyntax(test41) || hw.validSyntax(test42) || hw.validSyntax(test43)
-		);
+            new HW09().validSyntax(test12) || new HW09().validSyntax(test13) || new HW09().validSyntax(test14) ||
+            new HW09().validSyntax(test21) || new HW09().validSyntax(test23) || new HW09().validSyntax(test24) ||
+            new HW09().validSyntax(test31) || new HW09().validSyntax(test32) || new HW09().validSyntax(test34) ||
+            new HW09().validSyntax(test41) || new HW09().validSyntax(test42) || new HW09().validSyntax(test43)
+        );
     }
 
     @Test
     void FBCtestparalleloverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b)c(d))e";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void FBDtestparallelunderpop() {
+        HW09 hw = new HW09();
         String test1 = "a((b)c(d)e";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void FCAtestnestedvalid() {
+        HW09 hw = new HW09();
         String test1 = "a(b(c)d)e";
         assertTrue(hw.validSyntax(test1));
     }
@@ -522,27 +543,30 @@ public class HW09Test {
         String test43 = "a<b<c}d>e";
         
         assertFalse(
-    		hw.validSyntax(test12) || hw.validSyntax(test13) || hw.validSyntax(test14) ||
-    		hw.validSyntax(test21) || hw.validSyntax(test23) || hw.validSyntax(test24) ||
-    		hw.validSyntax(test31) || hw.validSyntax(test32) || hw.validSyntax(test34) ||
-    		hw.validSyntax(test41) || hw.validSyntax(test42) || hw.validSyntax(test43)
-		);
+            new HW09().validSyntax(test12) || new HW09().validSyntax(test13) || new HW09().validSyntax(test14) ||
+            new HW09().validSyntax(test21) || new HW09().validSyntax(test23) || new HW09().validSyntax(test24) ||
+            new HW09().validSyntax(test31) || new HW09().validSyntax(test32) || new HW09().validSyntax(test34) ||
+            new HW09().validSyntax(test41) || new HW09().validSyntax(test42) || new HW09().validSyntax(test43)
+        );
     }
 
     @Test
     void FCCtestnestedoverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b(c)d)))e";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void FCDtestnestedunderpop() {
+        HW09 hw = new HW09();
         String test1 = "a((b(c)d)e";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void FDAtestnestparavalid() {
+        HW09 hw = new HW09();
         String test1 = "a(b(c)d(e)f)g";
         assertTrue(hw.validSyntax(test1));
     }
@@ -566,21 +590,23 @@ public class HW09Test {
         String test43 = "a<b<c>b<c}d>e";
         
         assertFalse(
-    		hw.validSyntax(test12) || hw.validSyntax(test13) || hw.validSyntax(test14) ||
-    		hw.validSyntax(test21) || hw.validSyntax(test23) || hw.validSyntax(test24) ||
-    		hw.validSyntax(test31) || hw.validSyntax(test32) || hw.validSyntax(test34) ||
-    		hw.validSyntax(test41) || hw.validSyntax(test42) || hw.validSyntax(test43)
-		);
+            new HW09().validSyntax(test12) || new HW09().validSyntax(test13) || new HW09().validSyntax(test14) ||
+            new HW09().validSyntax(test21) || new HW09().validSyntax(test23) || new HW09().validSyntax(test24) ||
+            new HW09().validSyntax(test31) || new HW09().validSyntax(test32) || new HW09().validSyntax(test34) ||
+            new HW09().validSyntax(test41) || new HW09().validSyntax(test42) || new HW09().validSyntax(test43)
+        );
     }
 
     @Test
     void FDCtestnestparaoverpop() {
+        HW09 hw = new HW09();
         String test1 = "a(b(c)d)))e";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
     void FDDtestnestparaunderpop() {
+        HW09 hw = new HW09();
         String test1 = "a((b(c)d)e";
         assertFalse(hw.validSyntax(test1));
     }
@@ -589,11 +615,29 @@ public class HW09Test {
     @DisplayName("strings with intersecting parentheses such as ([)] should be invalid")
     void GtestIntersectingParens()
     {
+        HW09 hw = new HW09();
         String test1 = "a(b[c)d]e";
         assertFalse(hw.validSyntax(test1));
     }
     
-    
+    @Test
+    @DisplayName("multiple successive calls to validSyntax should not alter the results")
+    void HtestRepeatedCalls()
+    {
+        HW09 hw = new HW09();
+        
+        String test1 = "a(b(c)d)e";
+        String test2 = "a(b(c)de";
+        String test3 = "a(b(c)d)e";
+        String test4 = "a(b(c)d))e";
+        String test5 = "a(b(c)d)e";
+
+        assertTrue(hw.validSyntax(test1));
+        assertFalse(hw.validSyntax(test2));
+        assertTrue(hw.validSyntax(test3));
+        assertFalse(hw.validSyntax(test4));
+        assertTrue(hw.validSyntax(test5));
+    }
     
     
     
