@@ -4,6 +4,8 @@ import edu.ics211.h05.HW05;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -108,4 +110,33 @@ class HW05Test {
 	void aTernary31ExceptionTest() {
 		assertDoesNotThrow(() -> HW05.firstTernaryNumbers(10));
 	}
+	
+	
+	//Reference of how to test main method output
+//	private boolean stringMatches(String test, String[] substrings) {
+//        String pattern = ".*" + String.join(".*", substrings) + ".*";
+//        return test.matches(pattern);
+//    }
+//
+//    private void testMainOutput(String[] args, int numExpected) {
+//        // Redirect standard output to capture the output of main
+//        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+//        System.setOut(new PrintStream(outContent));
+//
+//        // Run the main method with the given arguments
+//        edu.ics211.h09.HW09.main(args);
+//
+//        // Restore standard output
+//        System.setOut(System.out);
+//
+//        // Construct the expectedSubstrings array with args.length copies of the regex expression
+//        String[] expectedSubstrings = new String[args.length];
+//        for (int i = 0; i < numExpected; i++) {
+//            expectedSubstrings[i] = "(Syntax error|Valid syntax)";
+//        }
+//
+//        // Check if the output contains args.length repetitions of the regex expression
+//        assertTrue(stringMatches(outContent.toString(), expectedSubstrings),
+//                   "The output does not contain the expected number of repetitions.");
+//    }
 }
