@@ -223,36 +223,6 @@ public class TestRunner {
             writer.append('\n');
         }
     }
-    
-    private static boolean checkJavaFilesExist(File sourceDir, String[] filenames) {
-        // Convert filenames array to a list for easier checking
-        List<String> filenameList = Arrays.asList(filenames);
-
-        // Check if the source directory contains all the filenames
-        boolean containsAllFilenames = containsAllFilenames(sourceDir, filenameList);
-
-        // Check in subdirectories
-        return checkJavaFilesExistRecursively(sourceDir, filenameList, containsAllFilenames);
-    }
-
-    private static boolean checkJavaFilesExistRecursively(File sourceDir, List<String> filenames, boolean foundAll) {
-        for (File file : sourceDir.listFiles()) {
-            if (file.isDirectory()) {
-                // Check if this directory contains all the filenames
-                boolean containsAllFilenames = containsAllFilenames(file, filenames);
-                // Recursively search in subdirectories
-                foundAll = checkJavaFilesExistRecursively(file, filenames, containsAllFilenames || foundAll);
-            } else if (file.getName().endsWith(".java") && filenames.contains(file.getName())) {
-                // Update foundAll if a file is found
-                foundAll = true;
-            }
-            if (foundAll) {
-                // If all files are found, no need to continue checking
-                break;
-            }
-        }
-        return foundAll;
-    }
 
 
 

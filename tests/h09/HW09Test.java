@@ -1,8 +1,10 @@
 package ics211tester.tests;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
@@ -15,9 +17,11 @@ import java.util.Queue;
 import java.util.ArrayDeque;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.ics211.h08.HW8Iterator;
 import edu.ics211.h09.HW09;
 
 public class HW09Test {
@@ -615,11 +619,29 @@ public class HW09Test {
     
     @Test
     @DisplayName("strings with intersecting parentheses such as ([)] should be invalid")
-    void GtestIntersectingParens()
+    void GAtestIntersectingParens()
     {
         HW09 hw = new HW09();
         String test1 = "a(b[c)d]e";
         assertFalse(hw.validSyntax(test1));
+    }
+    
+    @Test
+    @DisplayName("strings with reversed parentheses such as )( should be invalid")
+    void GBtestFlippedParens()
+    {
+        HW09 hw = new HW09();
+        String test1 = "a)b(e";
+        assertFalse(hw.validSyntax(test1));
+    }
+    
+    @Test
+    @DisplayName("whitespace should not effect result")
+    void GCtestWhitespaceAndPunctuation()
+    {
+        HW09 hw = new HW09();
+        String test1 = " a ( b c ) d ";
+        assertTrue(hw.validSyntax(test1));
     }
     
     @Test
@@ -643,13 +665,20 @@ public class HW09Test {
     
     
     
-    //test main method without args
+    //Main method and basic file existence & following the rules tests
     
-    //test main method with args
+    @Test
+    void _AclassExists() {
+        try {
+            Class.forName("edu.ics211.h09.HW09");
+        } catch (ClassNotFoundException e) {
+            fail();
+        }
+    }
 
     @Test
-    @DisplayName("Uses java standard library class or list")
-    void __testNoForbiddenDependencies() {
+    @DisplayName("uses java standard library class or list")
+    void _BtestNoForbiddenDependencies() {
         Field[] fields = HW09.class.getDeclaredFields();
         assertFalse(
                 isForbiddenClass(HW09.class),
@@ -663,14 +692,6 @@ public class HW09Test {
             );
             //System.out.println(field.getName() + " passed test and is of type " + fieldType.getName());
         }
-    }
-
-    @Test
-	@DisplayName("must not use generic type")
-    public void _testNotGeneric() {
-        // Check if HW8Iterator has type parameters
-        TypeVariable<?>[] typeParameters = HW09.class.getTypeParameters();
-        assertFalse(typeParameters.length > 0);
     }
 
     private boolean isForbiddenClass(Class<?> clazz) {
@@ -689,4 +710,94 @@ public class HW09Test {
                BlockingQueue.class.isAssignableFrom(clazz) ||
                isForbiddenClass(clazz.getSuperclass());
     }
+
+    @Test
+	@DisplayName("must not use generic type")
+    public void _CtestNotGeneric() {
+        // Check if HW8Iterator has type parameters
+        TypeVariable<?>[] typeParameters = HW09.class.getTypeParameters();
+        assertFalse(typeParameters.length > 0);
+    }
+    
+	
+	@Test
+	public void __AmainMethodExists() {
+        try {
+            HW09.class.getDeclaredMethod("main", String[].class);
+        } catch (NoSuchMethodException e) {
+            fail();
+        }
+    }
+	
+	private int testMainOutputLoose(String[] args, int numExpected) {
+		return testMainOutput(args, "\\b(valid|error)\\b", 1);
+	}
+	
+	private int testMainOutput(String[] args, String patternString, int numExpected) {
+	    // Redirect standard output to capture the output of main
+	    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+	    System.setOut(new PrintStream(outContent));
+
+	    // Run the main method with the given arguments
+	    edu.ics211.h09.HW09.main(args);
+
+	    // Restore standard output
+	    System.setOut(System.out);
+
+	    Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+	    Matcher matcher = pattern.matcher(outContent.toString());
+
+	    // Count matches of the pattern in the captured output
+	    int count = 0;
+	    while (matcher.find()) {
+	        count++;
+	    }
+
+	    return count;
+	}
+    
+    @Test
+    @DisplayName("main method should accept arguments")
+    public void __BmainMethodEvaluatesOneArgument() {
+        String[] args = {"a(b)c"};
+        int result = testMainOutputLoose(args, args.length);
+        assertTrue(result == args.length || result == args.length+7);
+    }
+    
+    @Test
+    @DisplayName("main method should evaluate all arguments")
+    public void __CmainMethodEvaluatesAllArguments() {
+        String[] args = {"a(b)c", "a(b)c", "a(b)c"};
+        int result = testMainOutputLoose(args, args.length);
+        assertTrue(result == args.length || result == args.length+7);
+    }
+    
+    @Test
+    @DisplayName("main method with no arguments should evaluate the 7 default test strings")
+    public void __DmainMethodEvaluatesDefaults() {
+        String[] args = {};
+        int result = testMainOutputLoose(args, 7);
+        assertEquals(7, result);
+    }
+    
+    @Test
+    @DisplayName("main method with arguments should NOT evaluate the default test strings")
+    public void __EmainMethodEvaluatesDefaultsIFFnoArgs() {
+        String[] args = {"a(b)c", "a(b)c", "a(b)c"};
+        int result = testMainOutputLoose(args, args.length);
+        assertEquals(args.length, result);
+    }
+    
+    @Test
+    @DisplayName("main method output format")
+    public void __FmainMethodSyntax() {
+        String[] args = {"a(b)c"};
+		int result = testMainOutput(args, "(Syntax error|Valid syntax)", 7);
+		assertTrue(result == 1 || result == 7 || result == 1+7);
+
+        String[] args2 = {"a(bc"};
+		int result2 = testMainOutput(args2, "(Syntax error|Valid syntax)", 7);
+		assertTrue(result2 == 1 || result2 == 7 || result2 == 1+7);
+	}
 }
