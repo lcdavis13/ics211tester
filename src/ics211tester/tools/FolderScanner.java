@@ -64,8 +64,8 @@ public class FolderScanner {
     }
 
     public static void main(String[] args) {
-        String assignment = "h09";
-        String[] filenames = {"HW09.java"};
+        String assignment = "h10";
+        String[] filenames = {"StackCalculator.java"};
 
         String submissionFolder = "submissions/" + assignment + "/";
         String submissionSubdirectory = "Submission attachment(s)/";

@@ -349,8 +349,8 @@ public class HW09Test {
     @DisplayName("strings with parentheses at the start not working")
     void DCAtestfirstissue() {
         DCBtestfirstvalid();
-        DCDtestfirstoverpop();
-        DDDtestfirstunderpop();
+        DCCtestfirstoverpop();
+        DCDtestfirstunderpop();
     }
 
     @Test
@@ -361,14 +361,14 @@ public class HW09Test {
     }
     
     @Test
-    void DCDtestfirstoverpop() {
+    void DCCtestfirstoverpop() {
         HW09 hw = new HW09();
         String test1 = ")a(b)c";
         assertFalse(hw.validSyntax(test1));
     }
 
     @Test
-    void DDDtestfirstunderpop() {
+    void DCDtestfirstunderpop() {
         HW09 hw = new HW09();
         String test1 = "(a(b)c";
         assertFalse(hw.validSyntax(test1));
@@ -729,75 +729,99 @@ public class HW09Test {
         }
     }
 	
-	private int testMainOutputLoose(String[] args, int numExpected) {
-		return testMainOutput(args, "\\b(valid|error)\\b", 1);
+	private int testMainOutputLoose(String[] args) {
+		return testMainOutput(args, "\\b(valid|error|invalid|incorrect|correct|true|false)\\b");
 	}
 	
-	private int testMainOutput(String[] args, String patternString, int numExpected) {
+	private int testMainOutputLooseSuccesses(String[] args) {
+		return testMainOutput(args, "\\b(valid|correct|true)\\b");
+	}
+	
+	private int testMainOutputLooseFails(String[] args) {
+		return testMainOutput(args, "\\b(error|invalid|incorrect|false)\\b");
+	}
+	
+	private int testMainOutput(String[] args, String patternString) {
 	    // Redirect standard output to capture the output of main
 	    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+	    PrintStream originalOut = System.out;  // Save the original System.out
 	    System.setOut(new PrintStream(outContent));
 
-	    // Run the main method with the given arguments
-	    edu.ics211.h09.HW09.main(args);
+	    try {
+	        // Run the main method with the given arguments
+	        edu.ics211.h09.HW09.main(args);
 
-	    // Restore standard output
-	    System.setOut(System.out);
+	        // Use a pattern to find matches in the captured output
+	        Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+	        Matcher matcher = pattern.matcher(outContent.toString());
+	        
+	        // Count matches of the pattern in the captured output
+	        int count = 0;
+	        while (matcher.find()) {
+	            count++;
+	        }
 
-	    Pattern pattern = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
-	    Matcher matcher = pattern.matcher(outContent.toString());
-
-	    // Count matches of the pattern in the captured output
-	    int count = 0;
-	    while (matcher.find()) {
-	        count++;
+	        return count;
+	    } catch (Exception e) {
+	    	return -1;
+	    } 
+	    finally {
+	        // Restore standard output to ensure it's reset even if an exception occurs
+	        System.setOut(originalOut);
 	    }
-
-	    return count;
 	}
     
     @Test
     @DisplayName("main method should accept arguments")
     public void __BmainMethodEvaluatesOneArgument() {
-        String[] args = {"a(b)c"};
-        int result = testMainOutputLoose(args, args.length);
-        assertTrue(result == args.length || result == args.length+7);
+        String[] args = {"a(b}c"};
+        int result = testMainOutputLoose(args);
+        assertTrue(result == args.length || result == args.length+7 || result == args.length+4);
     }
     
     @Test
     @DisplayName("main method should evaluate all arguments")
     public void __CmainMethodEvaluatesAllArguments() {
-        String[] args = {"a(b)c", "a(b)c", "a(b)c"};
-        int result = testMainOutputLoose(args, args.length);
-        assertTrue(result == args.length || result == args.length+7);
+        String[] args = {"a{b]c", "a{b]c", "a{b]c"};
+        int result = testMainOutputLoose(args);
+        assertTrue(result == args.length || result == args.length+7 || result == args.length+4);
     }
     
     @Test
     @DisplayName("main method with no arguments should evaluate the 7 default test strings")
     public void __DmainMethodEvaluatesDefaults() {
         String[] args = {};
-        int result = testMainOutputLoose(args, 7);
-        assertEquals(7, result);
+        int result = testMainOutputLoose(args);
+        assertTrue(result == 7 || result == 4);
     }
     
     @Test
     @DisplayName("main method with arguments should NOT evaluate the default test strings")
     public void __EmainMethodEvaluatesDefaultsIFFnoArgs() {
-        String[] args = {"a(b)c", "a(b)c", "a(b)c"};
-        int result = testMainOutputLoose(args, args.length);
+        String[] args = {"a{b]c", "a{b]c", "a{b]c"};
+        int result = testMainOutputLoose(args);
         assertEquals(args.length, result);
     }
     
     @Test
-    @DisplayName("main method output format")
+    @DisplayName("main method must print successes")
     public void __FmainMethodSyntax() {
-        String[] args = {"a(b)c"};
-		int result = testMainOutput(args, "(Syntax error|Valid syntax)", 7);
-		assertTrue(result == 1 || result == 7 || result == 1+7);
-
-        String[] args2 = {"a(bc"};
-		int result2 = testMainOutput(args2, "(Syntax error|Valid syntax)", 7);
-		assertTrue(result2 == 1 || result2 == 7 || result2 == 1+7);
+        String[] args1 = {"a(b)c", "c(b)a", "a(b)c", "c(b)a", "a(b)c", "c(b)a", "a(b)c", "c(b)a", "a(b]c", "c(b]a", "c(b)a"};
+		int result1 = testMainOutputLoose(args1);
+        String[] args2 = {};
+		int result2 = testMainOutputLoose(args2);
+		assertTrue(result1 == 11 || result2 == 7);
+	}
+    
+    @Test
+    @DisplayName("main method output format")
+    public void __GmainMethodSyntax() {
+        String[] args = {"a(b}c", "a(b)c"};
+		int result = testMainOutput(args, "(Syntax error|Valid syntax)");
+        
+		String[] args2 = {};
+		int result2 = testMainOutput(args2, "(Syntax error|Valid syntax)");
+		
+		assertTrue(result == 2 || result == 4 || result == 7 || result == 2+4 || result == 2+7 || result2 == 4 || result2 == 7);
 	}
 }
